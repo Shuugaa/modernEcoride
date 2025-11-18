@@ -121,7 +121,7 @@ router.get("/details/:id", async (req, res) => {
 // ------------------------------------------------------
 router.get("/all/:id", async (req, res) => {
   try {
-    const result = await pool.query("SELECT * FROM trajets WHERE id = $1", [
+    const result = await pool.query("SELECT * FROM trajets WHERE conducteur_id = $1", [
       req.params.id,
     ]);
 

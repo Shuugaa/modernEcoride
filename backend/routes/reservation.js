@@ -8,7 +8,7 @@ const requireAuth = require("../middlewares/auth");
 // ------------------------------------------------------
 router.post("/add/:trajetId", requireAuth, async (req, res) => {
   const utilisateurId = req.session.user.id;
-  const { places_reservees } = req.body;
+  const { places_reservees, prix } = req.body;
   const { trajetId } = req.params;
 
   if (!trajetId || !places_reservees)
@@ -31,9 +31,9 @@ router.post("/add/:trajetId", requireAuth, async (req, res) => {
 
     // Créer la réservation
     await pool.query(
-      `INSERT INTO reservations (passager_id, trajet_id, places_reservees)
-       VALUES ($1, $2, $3)`,
-      [utilisateurId, trajetId, places_reservees]
+      `INSERT INTO reservations (passager_id, trajet_id, places_reservees, total_prix)
+       VALUES ($1, $2, $3, $4)`,
+      [utilisateurId, trajetId, places_reservees, prix]
     );
 
     // Mettre à jour les places disponibles

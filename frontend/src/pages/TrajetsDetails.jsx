@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { apiFetch } from "../api/apiClient";
+import { useUser } from "../context/UserContext";
 
 export default function TrajetsDetails() {
   const { id } = useParams();
@@ -8,12 +9,13 @@ export default function TrajetsDetails() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [message, setMessage] = useState('');
+  const { user, setUser } = useUser();
 
   useEffect(() => {
     const fetchTrajetDetails = async () => {
       try {
         const response = await apiFetch(`/trajets/details/${id}`, {
-            method: 'GET',
+          method: 'GET',
         });
         if (response.success) {
           setTrajet(response.trajet);
@@ -32,19 +34,31 @@ export default function TrajetsDetails() {
 
   const handleReserve = async (e) => {
     // Logique de réservation à implémenter
+    e.preventDefault();
     try {
-        const response = await apiFetch(`/reservation/add/${id}`, {
+      const response = await apiFetch(`/reservation/add/${trajet.id}`, {
         method: 'POST',
-        body: JSON.stringify({ places_reservees: 1 }),
-    })} catch(err) {
-      setError("Erreur réseau.");
+        body: JSON.stringify({ places_reservees: 1, prix: trajet.prix }),
+      });
+      const spend = await apiFetch("/credits/spend", {
+        method: 'POST',
+        body: JSON.stringify({ amount: trajet.prix }),
+      });
+
+      if (spend?.success) {
+        setUser({ ...user, credits: spend.credits });
+      }
+      if (response?.success) {
+        setMessage("Trajet réservé avec succès!");
+      } else {
+        setError(response.message || "Erreur lors de la réservation.");
+      }
+    } catch (err) {
+      setError(err.message || "Erreur réseau lors de la réservation.");
+      return;
     };
-    if (response.success) {
-      setMessage("Trajet réservé avec succès!");
-    } else {
-      setMessage(response.message || "Erreur lors de la réservation.");
-    }
   };
+
   if (loading) return <p>Chargement du trajet...</p>;
   if (error) return <p className="text-red-500">{error}</p>;
   if (!trajet) return <p>Trajet non trouvé.</p>;

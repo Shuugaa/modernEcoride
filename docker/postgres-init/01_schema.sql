@@ -44,7 +44,7 @@ CREATE TABLE IF NOT EXISTS reservations (
   passager_id INTEGER NOT NULL, -- utilisateurs.id
   statut VARCHAR(40) DEFAULT 'en_attente',
   places_reservees INTEGER NOT NULL,
-  total_prix NUMERIC(8,2) NOT NULL,
+  total_prix NUMERIC(8,2) NOT NULL DEFAULT 0,
   created_at TIMESTAMP DEFAULT now()
 );
 
