@@ -31,20 +31,20 @@ export default function TrajetsList() {
             {loading ? (
                 <p>Chargement des trajets...</p>
             ) : trajets.length === 0 ? (
-                    <p>Aucun trajet disponible.</p>
+                <p>Aucun trajet disponible.</p>
             ) : (
-                    <ul className="list-disc list-inside">
-                        {trajets.map((trajet) => (
-                            <li key={trajet.id}>
-                                {trajet.depart} à {trajet.arrivee} le {new Date(trajet.date_depart).toLocaleDateString()} pour {trajet.prix} €.
-                                Places disponibles: {trajet.places_disponibles}
-                                <br />
-                                <Link to={`/trajets/details/${trajet.id}`}  className="hover:text-green-200">
-                                    Voir détails
-                                </Link>
-                            </li>
-                        ))}
-                    </ul>
+                <ul className="list-disc list-inside">
+                    {trajets.map((trajet) => (
+                        <li key={trajet.id}>
+                            {trajet.depart} à {trajet.arrivee} le {new Date(trajet.date_depart).toLocaleDateString()} pour {trajet.prix} €.
+                            Places disponibles: {trajet.places_disponibles}
+                            <br />
+                            <Link to={`/trajets/details/${trajet.id}`} className="hover:text-green-200">
+                                Voir détails
+                            </Link>
+                        </li>
+                    ))}
+                </ul>
             )}
         </div>
     );

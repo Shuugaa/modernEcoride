@@ -33,9 +33,9 @@ export default function TrajetsDetails() {
   const handleReserve = async (e) => {
     // Logique de réservation à implémenter
     try {
-        const response = await apiFetch(`/reservation/add/${id}`, {
+        const response = await apiFetch(`/reservation/add/${trajet.id}`, {
         method: 'POST',
-        body: JSON.stringify({ places_reservees: 1 }),
+        body: JSON.stringify({ places_reservees: 1, prix: trajet.prix}),
     })} catch(err) {
       setError("Erreur réseau.");
     };
