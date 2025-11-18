@@ -11,6 +11,9 @@ const pool = require("./db");
 const authRoutes = require("./routes/auth");
 const vehiculesRoutes = require("./routes/vehicules");
 const trajetsRoutes = require("./routes/trajets");
+const roleRoutes = require("./routes/roles");
+const reservationRoutes = require("./routes/reservation");
+const creditsRoutes = require("./routes/credits");
 
 require("dotenv").config();
 
@@ -45,8 +48,9 @@ connectMongo().catch(err => console.error("Mongo error:", err));
 app.use("/auth", authRoutes);
 app.use("/vehicules", vehiculesRoutes);
 app.use("/trajets", trajetsRoutes);
-app.use("/credits", require("./routes/credits"));
-
+app.use("/roles", roleRoutes);
+app.use("/reservation", reservationRoutes);
+app.use("/credits", creditsRoutes);
 
 app.get("/api/health", (req, res) => {
   res.json({ status: "ok", time: new Date() });

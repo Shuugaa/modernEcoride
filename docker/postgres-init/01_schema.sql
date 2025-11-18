@@ -8,9 +8,9 @@ CREATE TABLE IF NOT EXISTS utilisateurs (
   prenom VARCHAR(100) NOT NULL,
   email VARCHAR(255) UNIQUE NOT NULL,
   password_hash VARCHAR(255) NOT NULL,
-  role VARCHAR(20) NOT NULL DEFAULT 'passager',
+  roles TEXT[] DEFAULT ARRAY['passager'],
   created_at TIMESTAMP DEFAULT now(),
-  credits INT DEFAULT 100
+  credits NUMERIC(8,2) DEFAULT 100
 );
 
 -- VEHICULES
@@ -43,6 +43,8 @@ CREATE TABLE IF NOT EXISTS reservations (
   trajet_id INTEGER REFERENCES trajets(id) ON DELETE CASCADE,
   passager_id INTEGER NOT NULL, -- utilisateurs.id
   statut VARCHAR(40) DEFAULT 'en_attente',
+  places_reservees INTEGER NOT NULL,
+  total_prix NUMERIC(8,2) NOT NULL,
   created_at TIMESTAMP DEFAULT now()
 );
 

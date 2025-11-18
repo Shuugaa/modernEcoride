@@ -12,15 +12,16 @@ const VALID_ROLES = ["passager", "conducteur"];
 // POST /auth/register
 // ---------------------------
 router.post("/register", async (req, res) => {
-  const { nom, prenom, email, password, role } = req.body;
+  const { nom, prenom, email, password, roles } = req.body;
 
   try {
-    if (!nom || !prenom || !email || !password || !role)
+    if (!nom || !prenom || !email || !password || !roles)
       return res.status(400).json({ success: false, message: "Champs manquants" });
 
-    if (!VALID_ROLES.includes(role))
-      return res.status(400).json({ success: false, message: "Rôle invalide" });
-
+    if (!Array.isArray(roles) || roles.length === 0 || !roles.every(r => VALID_ROLES.includes(r))) {
+      return res.status(400).json({ success: false, message: "Rôles invalides" });
+    }
+    
     // Vérifier si email existe déjà
     const check = await pool.query(
       "SELECT id FROM utilisateurs WHERE email = $1 LIMIT 1",
@@ -32,10 +33,10 @@ router.post("/register", async (req, res) => {
     const hashed = await bcrypt.hash(password, SALT_ROUNDS);
 
     const result = await pool.query(
-      `INSERT INTO utilisateurs (nom, prenom, email, password_hash, role, credits)
+      `INSERT INTO utilisateurs (nom, prenom, email, password_hash, roles, credits)
        VALUES ($1, $2, $3, $4, $5, 100)
-       RETURNING id, nom, prenom, email, role, credits`,
-      [nom, prenom, email, hashed, role]
+       RETURNING id, nom, prenom, email, roles, credits`,
+      [nom, prenom, email, hashed, roles]
     );
 
 
@@ -64,7 +65,7 @@ router.post("/login", async (req, res) => {
       return res.status(400).json({ success: false, message: "Champs manquants" });
 
     const result = await pool.query(
-      `SELECT id, nom, prenom, email, role, credits, password_hash
+      `SELECT id, nom, prenom, email, roles, credits, password_hash
        FROM utilisateurs WHERE email = $1 LIMIT 1`,
       [email]
     );
@@ -87,8 +88,8 @@ router.post("/login", async (req, res) => {
         id: user.id,
         prenom: user.prenom,
         email: user.email,
-        role: user.role,
-        credits: user.credits  // ⬅️ IMPORTANT
+        roles: user.roles,
+        credits: user.credits
       }
     });
     } catch (err) {
@@ -132,8 +133,8 @@ router.get("/me", (req, res) => {
       id: req.session.user.id,
       prenom: req.session.user.prenom,
       email: req.session.user.email,
-      role: req.session.user.role,
-      credits: req.session.user.credits  // ⬅ IMPORTANT !
+      roles: req.session.user.roles,
+      credits: req.session.user.credits
     }
   });
 });
@@ -147,7 +148,7 @@ router.get("/private/profile", requireAuth, async (req, res) => {
     const userId = req.session.user.id;
 
     const result = await pool.query(
-      "SELECT id, nom, prenom, email, role FROM utilisateurs WHERE id = $1",
+      "SELECT id, nom, prenom, email, roles FROM utilisateurs WHERE id = $1",
       [userId]
     );
 

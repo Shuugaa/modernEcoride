@@ -8,7 +8,7 @@ export default function DashboardRedirect() {
   if (!user) return <Navigate to="/login" />;
 
   return (
-    user.role === "conducteur"
+    user.roles.includes("conducteur")
       ? <Navigate to="/dashboard/conducteur" />
       : <Navigate to="/dashboard/passager" />
   );

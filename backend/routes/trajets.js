@@ -98,7 +98,7 @@ router.get("/search", async (req, res) => {
 // ------------------------------------------------------
 // 3) Détail d’un trajet (public)
 // ------------------------------------------------------
-router.get("/:id", async (req, res) => {
+router.get("/details/:id", async (req, res) => {
   try {
     const result = await pool.query("SELECT * FROM trajets WHERE id = $1", [
       req.params.id,
@@ -112,6 +112,27 @@ router.get("/:id", async (req, res) => {
     res.json({ success: true, trajet: result.rows[0] });
   } catch (err) {
     console.error("Erreur détail trajet :", err);
+    res.status(500).json({ success: false, message: "Erreur serveur" });
+  }
+});
+
+// ------------------------------------------------------
+// 3) Détail des trajets pour un utilisateur (public)
+// ------------------------------------------------------
+router.get("/all/:id", async (req, res) => {
+  try {
+    const result = await pool.query("SELECT * FROM trajets WHERE id = $1", [
+      req.params.id,
+    ]);
+
+    if (result.rowCount === 0)
+      return res
+        .status(404)
+        .json({ success: false, message: "Trajet introuvable" });
+
+    res.json({ success: true, trajets: result.rows });
+  } catch (err) {
+    console.error("Erreur détail trajets :", err);
     res.status(500).json({ success: false, message: "Erreur serveur" });
   }
 });

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useUser } from "../context/UserContext";
+import { apiFetch } from "../api/apiClient";
 
 export default function Register() {
   const nav = useNavigate();
@@ -17,14 +18,14 @@ export default function Register() {
     e.preventDefault();
     setError("");
 
-    const res = await fetch("http://localhost:5000/auth/register", {
+    let rolesToSend = role === "both" ? ["passager", "conducteur"] : [role];
+
+    const data = await apiFetch("/auth/register", {
       method: "POST",
       credentials: "include",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ nom, prenom, email, password, role }),
+      body: JSON.stringify({ nom, prenom, email, password, roles: rolesToSend }),
     });
-
-    const data = await res.json();
 
     if (!data.success) {
       setError(data.message || "Erreur lors de l’inscription.");
@@ -115,6 +116,7 @@ export default function Register() {
           >
             <option value="passager">Passager</option>
             <option value="conducteur">Conducteur</option>
+            <option value="both">Passager et Conducteur</option>
           </select>
         </div>
 

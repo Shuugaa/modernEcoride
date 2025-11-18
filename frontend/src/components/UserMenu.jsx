@@ -46,6 +46,16 @@ export default function UserMenu() {
         </Link>
       </span>
 
+      <span>
+        <Link
+          to="/trajets"
+          className="bg-white/20 hover:bg-white/30 px-2 py-0.5 rounded text-xs"
+          title="Mes trajets"
+        >
+          🚗
+        </Link>
+      </span>
+
       <button
         onClick={handleLogout}
         className="bg-white/20 hover:bg-white/30 px-3 py-1 rounded transition"

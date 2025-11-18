@@ -6,16 +6,16 @@ async function seed() {
   const prenom = 'Admin';
   const email = 'admin@example.com';
   const password = 'admin123';
-  const role = 'conducteur';
+  const role = 'administrateur';
 
   const hashed = await bcrypt.hash(password, 10);
 
   try {
     await pool.query(
-      `INSERT INTO utilisateurs (nom, prenom, email, password_hash, role)
+      `INSERT INTO utilisateurs (nom, prenom, email, roles, password_hash)
        VALUES ($1, $2, $3, $4, $5)
        ON CONFLICT (email) DO NOTHING`,
-      [nom, prenom, email, hashed, role]
+      [nom, prenom, email, [role], hashed]
     );
     console.log('Seeded admin user');
     process.exit(0);

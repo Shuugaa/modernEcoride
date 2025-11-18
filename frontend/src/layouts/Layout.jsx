@@ -23,6 +23,7 @@ export default function Layout() {
 
             <Link to="/" className="hover:underline">Accueil</Link>
             <Link to="/recherche" className="hover:underline">Rechercher</Link>
+            <Link to="/about" className="hover:underline">À propos</Link>
 
             {/* Afficher lien dashboard seulement si connecté */}
             {user && (

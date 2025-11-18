@@ -7,6 +7,12 @@ import Home from "./pages/Home";
 import Recherche from "./pages/Recherche";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
+import Trajets from "./pages/Trajets";
+import About from "./pages/About";
+
+import TrajetsAdd from "./pages/TrajetsAdd";
+import TrajetsList from "./pages/TrajetsList";
+import TrajetsDetails from "./pages/TrajetsDetails";
 
 import DashboardRedirect from "./components/DashboardRedirect";
 import DashboardConducteur from "./pages/DashboardConducteur";
@@ -27,6 +33,7 @@ export default function App() {
         <Route path="/recherche" element={<Recherche />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
+        <Route path="/about" element={<About />} />
 
         {/* --- REDIRECTION SELON ROLE --- */}
         <Route
@@ -57,6 +64,44 @@ export default function App() {
             </PrivateRoute>
           }
         />
+
+        <Route
+          path="/trajets"
+          element={
+            <PrivateRoute>
+              <Trajets />
+            </PrivateRoute>
+          }
+        />
+
+        <Route
+          path="/trajets/new"
+          element={
+            <PrivateRoute>
+              <TrajetsAdd />
+            </PrivateRoute>
+          }
+        />
+
+        <Route
+          path="/trajets/list"
+          element={
+            <PrivateRoute>
+              <TrajetsList />
+            </PrivateRoute>
+          }
+        />
+
+        <Route
+          path="/trajets/details/:id"
+          element={
+            <PrivateRoute>
+              <TrajetsDetails />
+            </PrivateRoute>
+          }
+        />
+
+        {/* --- RECHARGE DE CREDITS --- */}
 
         <Route
           path="/credits"
