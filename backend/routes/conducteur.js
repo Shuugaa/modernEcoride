@@ -85,7 +85,7 @@ router.get("/reservations", auth, requireConducteur, async (req, res) => {
 });
 
 // Accepter/Refuser une réservation
-router.put("/reservations/:id/status", auth, requireConducteur, async (req, res) => {
+router.put("/reservations/:id/statut", auth, requireConducteur, async (req, res) => {
   const { statut } = req.body; // "confirmee" ou "refusee"
   
   try {

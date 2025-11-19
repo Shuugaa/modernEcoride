@@ -28,7 +28,6 @@ import AdminTrajets from "./pages/dashboard/admin/AdminTrajets";
 import ConducteurIndex from "./pages/dashboard/conducteur/index";
 import MesTrajets from "./pages/dashboard/conducteur/MesTrajets";
 import NouveauTrajet from "./pages/dashboard/conducteur/NouveauTrajet";
-import TrajetsReservations from "./pages/dashboard/conducteur/TrajetsReservations";
 
 // Pages passager
 import PassagerIndex from "./pages/dashboard/passager/index";
@@ -76,7 +75,6 @@ export default function App() {
             <Route path="conducteur" element={<ConducteurIndex />} />
             <Route path="conducteur/mes-trajets" element={<MesTrajets />} />
             <Route path="conducteur/nouveau" element={<NouveauTrajet />} />
-            <Route path="conducteur/reservations" element={<TrajetsReservations />} />
 
             {/* Routes passager existantes */}
             <Route path="passager" element={<PassagerIndex />} />

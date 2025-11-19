@@ -26,14 +26,6 @@ export default function DashboardConducteur() {
           <div className="text-lg font-semibold">Mes trajets</div>
           <p className="text-sm text-gray-500 mt-1">Consultez et gérez vos trajets publiés.</p>
         </Link>
-
-        <Link
-          to="/dashboard/conducteur/reservations"
-          className="block bg-white p-5 rounded-xl shadow hover:shadow-lg transition"
-        >
-          <div className="text-lg font-semibold">Réservations reçues</div>
-          <p className="text-sm text-gray-500 mt-1">Voir les réservations effectuées sur vos trajets.</p>
-        </Link>
       </div>
     </div>
   );

@@ -10,7 +10,6 @@ const { pool } = require("./config/db");  // ← CONNECTION SQL IMPORTÉE
 // Routes
 const authRoutes = require("./routes/auth");
 const trajetRoutes = require("./routes/trajets");
-const reservationRoutes = require("./routes/reservation");
 const creditRoutes = require("./routes/credits");
 const vehiculeRoutes = require("./routes/vehicule");
 const adminRoutes = require("./routes/admin");
@@ -33,7 +32,6 @@ app.use(cors({
 
 // Routes
 app.use("/auth", authRoutes);
-app.use("/reservations", reservationRoutes);
 app.use("/credits", creditRoutes);
 app.use("/api/vehicules", vehiculeRoutes);
 app.use("/admin", adminRoutes);
