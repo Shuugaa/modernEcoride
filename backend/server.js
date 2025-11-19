@@ -1,67 +1,35 @@
 // backend/server.js
 const express = require("express");
-const cors = require("cors");
-const helmet = require("helmet");
 const cookieParser = require("cookie-parser");
-
-const sessionMiddleware = require("./session");
-const connectMongo = require("./mongo");
-const pool = require("./db");
-
-const authRoutes = require("./routes/auth");
-const vehiculesRoutes = require("./routes/vehicules");
-const trajetsRoutes = require("./routes/trajets");
-const roleRoutes = require("./routes/roles");
-const reservationRoutes = require("./routes/reservation");
-const creditsRoutes = require("./routes/credits");
-const passagerRoutes = require("./routes/passager");
-const conducteurRoutes = require("./routes/conducteur");
-
+const cors = require("cors");
 require("dotenv").config();
 
+const authRoutes = require("./routes/auth");
+const trajetRoutes = require("./routes/trajets");
+const reservationRoutes = require("./routes/reservations");
+const creditRoutes = require("./routes/credits");
+const adminRoutes = require("./routes/admin");
+const employeRoutes = require("./routes/employe");
+
 const app = express();
-const PORT = process.env.PORT || 5000;
 
-// --------- Middlewares globaux ----------
-app.use(helmet());
 app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
+app.use(cors({
+  origin: process.env.CORS_ORIGIN || "http://localhost:5173",
+  credentials: true
+}));
 
-// CORS complet (sessions + préflight)
-app.use(
-  cors({
-    origin: process.env.CORS_ORIGIN,
-    credentials: true,
-    methods: "GET,POST,PUT,DELETE,OPTIONS",
-    allowedHeaders: "Content-Type"
-  })
-);
-
-// Répondre globalement aux OPTIONS (préflight)
-app.options("*", cors());
-
-app.use(sessionMiddleware);
-
-// --------- Connexions DB ----------
-connectMongo().catch(err => console.error("Mongo error:", err));
-
-// --------- Routes ----------
+// routes
 app.use("/auth", authRoutes);
-app.use("/vehicules", vehiculesRoutes);
-app.use("/trajets", trajetsRoutes);
-app.use("/roles", roleRoutes);
-app.use("/reservation", reservationRoutes);
-app.use("/credits", creditsRoutes);
-app.use("/passager", passagerRoutes);
-app.use("/conducteur", conducteurRoutes);
+app.use("/trajets", trajetRoutes);
+app.use("/reservations", reservationRoutes);
+app.use("/credits", creditRoutes);
+app.use("/admin", adminRoutes);
+app.use("/employe", employeRoutes);
 
+// simple health
+app.get("/", (req, res) => res.json({ success: true, message: "Backend OK" }));
 
-
-app.get("/api/health", (req, res) => {
-  res.json({ status: "ok", time: new Date() });
-});
-
-app.listen(PORT, "0.0.0.0", () => {
-  console.log(`🚀 Backend running on port ${PORT}`);
-});
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => console.log(`Backend démarré sur ${PORT}`));
