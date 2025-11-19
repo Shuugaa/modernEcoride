@@ -12,6 +12,7 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Recherche from "./pages/Recherche";
 import About from "./pages/About";
+import TrajetDetail from "./pages/TrajetDetail";
 
 // Dashboard container pro
 import DashboardMain from "./pages/dashboard/DashboardMain";
@@ -48,7 +49,8 @@ export default function App() {
           <Route path="/register" element={<Register />} />
           <Route path="/recherche" element={<Recherche />} />
           <Route path="/about" element={<About />} />
-
+          <Route path="/trajet/:id" element={<TrajetDetail />} />
+          
           {/* Redirection role → dashboard */}
           <Route
             path="/dashboard"

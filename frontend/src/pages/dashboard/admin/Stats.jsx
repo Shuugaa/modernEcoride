@@ -55,7 +55,7 @@ export default function AdminStats() {
         <h2 className="text-2xl font-bold">Statistiques du Site</h2>
         <button 
           onClick={loadStats}
-          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
+          className="px-4 py-2 bg-brand-dark text-white rounded-lg hover:bg-brand-verydark transition"
         >
           🔄 Actualiser
         </button>
@@ -113,8 +113,8 @@ export default function AdminStats() {
             <div className="text-sm text-gray-600">Passagers</div>
           </div>
 
-          <div className="text-center p-4 bg-blue-50 rounded-lg">
-            <div className="text-2xl font-bold text-blue-600">
+          <div className="text-center p-4 bg-brand-light rounded-lg">
+            <div className="text-2xl font-bold text-brand-dark">
               {stats.conducteurs || 0}
             </div>
             <div className="text-sm text-gray-600">Conducteurs</div>
@@ -207,7 +207,7 @@ export default function AdminStats() {
 
             <div className="flex justify-between">
               <span className="text-gray-600">Nouveaux trajets (7j)</span>
-              <span className="font-medium text-blue-600">
+              <span className="font-medium text-brand-dark">
                 +{stats.nouveaux_trajets_7j || 0}
               </span>
             </div>
@@ -266,7 +266,7 @@ export default function AdminStats() {
 // Composant pour les cartes de stats
 function StatCard({ title, value, icon, color, subtitle }) {
   const colors = {
-    blue: 'bg-blue-50 text-blue-600 border-blue-200',
+    blue: 'bg-brand-light text-brand-dark border-brand-light',
     green: 'bg-green-50 text-green-600 border-green-200',
     purple: 'bg-purple-50 text-purple-600 border-purple-200',
     yellow: 'bg-yellow-50 text-yellow-600 border-yellow-200',

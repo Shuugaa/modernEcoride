@@ -127,7 +127,7 @@ export default function CreateEmployee() {
               name="prenom"
               value={formData.prenom}
               onChange={handleChange}
-              className="w-full border rounded-lg px-3 py-2 focus:outline-none focus:border-blue-500"
+              className="w-full border rounded-lg px-3 py-2 focus:outline-none focus:border-brand-dark"
               placeholder="Ex: Marie"
               required
             />
@@ -142,7 +142,7 @@ export default function CreateEmployee() {
               name="nom"
               value={formData.nom}
               onChange={handleChange}
-              className="w-full border rounded-lg px-3 py-2 focus:outline-none focus:border-blue-500"
+              className="w-full border rounded-lg px-3 py-2 focus:outline-none focus:border-brand-dark"
               placeholder="Ex: Dupont"
               required
             />
@@ -159,7 +159,7 @@ export default function CreateEmployee() {
             name="email"
             value={formData.email}
             onChange={handleChange}
-            className="w-full border rounded-lg px-3 py-2 focus:outline-none focus:border-blue-500"
+            className="w-full border rounded-lg px-3 py-2 focus:outline-none focus:border-brand-dark"
             placeholder="Ex: marie.dupont@entreprise.com"
             required
           />
@@ -175,7 +175,7 @@ export default function CreateEmployee() {
             name="password"
             value={formData.password}
             onChange={handleChange}
-            className="w-full border rounded-lg px-3 py-2 focus:outline-none focus:border-blue-500"
+            className="w-full border rounded-lg px-3 py-2 focus:outline-none focus:border-brand-dark"
             placeholder="Minimum 6 caractères"
             minLength={6}
             required
@@ -197,14 +197,14 @@ export default function CreateEmployee() {
                 onClick={() => handleRoleToggle(role.id)}
                 className={`p-4 border-2 rounded-lg cursor-pointer transition ${
                   formData.roles.includes(role.id)
-                    ? 'border-blue-500 bg-blue-50'
+                    ? 'border-brand-dark bg-brand-light'
                     : 'border-gray-200 hover:border-gray-300'
                 }`}
               >
                 <div className="flex items-center gap-3">
                   <div className={`w-4 h-4 rounded border-2 ${
                     formData.roles.includes(role.id)
-                      ? 'bg-blue-500 border-blue-500'
+                      ? 'bg-brand-light0 border-brand-dark'
                       : 'border-gray-300'
                   }`}>
                     {formData.roles.includes(role.id) && (
@@ -235,7 +235,7 @@ export default function CreateEmployee() {
                 return (
                   <span 
                     key={roleId}
-                    className="inline-flex px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm"
+                    className="inline-flex px-3 py-1 bg-brand-light text-brand-verydark rounded-full text-sm"
                   >
                     {role?.label}
                   </span>
@@ -250,7 +250,7 @@ export default function CreateEmployee() {
           <button
             type="submit"
             disabled={loading}
-            className="flex-1 bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 disabled:opacity-50 transition"
+            className="flex-1 bg-brand-dark text-white py-2 px-4 rounded-lg hover:bg-brand-verydark disabled:opacity-50 transition"
           >
             {loading ? "Création..." : "Créer l'utilisateur"}
           </button>

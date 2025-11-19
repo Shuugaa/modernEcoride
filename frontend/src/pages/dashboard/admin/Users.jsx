@@ -190,7 +190,7 @@ export default function AdminUsers() {
                       <>
                         <button
                           onClick={() => setEditingUser(user.id)}
-                          className="text-blue-600 hover:text-blue-900"
+                          className="text-brand-dark hover:text-blue-900"
                         >
                           Modifier
                         </button>
@@ -243,7 +243,7 @@ function RoleEditor({ currentRoles, onSave, onCancel }) {
             onClick={() => toggleRole(role)}
             className={`px-2 py-1 text-xs rounded border ${
               selectedRoles.includes(role)
-                ? 'bg-blue-100 border-blue-300 text-blue-800'
+                ? 'bg-brand-light border-blue-300 text-brand-verydark'
                 : 'bg-gray-100 border-gray-300 text-gray-600'
             }`}
           >
@@ -274,7 +274,7 @@ function getRoleColor(role) {
   switch (role) {
     case 'administrateur': return 'bg-red-100 text-red-800';
     case 'employe': return 'bg-purple-100 text-purple-800';
-    case 'conducteur': return 'bg-blue-100 text-blue-800';
+    case 'conducteur': return 'bg-brand-light text-brand-verydark';
     case 'passager': return 'bg-green-100 text-green-800';
     default: return 'bg-gray-100 text-gray-800';
   }
