@@ -24,7 +24,7 @@ export default function DashboardSidebar() {
         <div className="mb-4 border rounded p-3 bg-gray-50">
           <div className="text-sm text-gray-600">Crédits</div>
           <div className="font-bold">{user?.credits ?? 0} ⚡</div>
-          <Link to="/credits" className="text-xs text-green-600 hover:underline">Recharger</Link>
+          <Link to="/dashboard/recharge-credits" className="text-xs text-green-600 hover:underline">Recharger</Link>
         </div>
 
         {/* nav */}
@@ -64,6 +64,13 @@ export default function DashboardSidebar() {
               <Link to="/dashboard/admin" className="block px-3 py-2 rounded hover:bg-gray-100">Administration</Link>
             </>
           )}
+
+          <Link
+                to="/dashboard/recharge-credits"
+                className="flex items-center gap-3 px-3 py-2 text-gray-700 hover:bg-gray-100 rounded-lg"
+              >
+                💰 Recharger crédits
+          </Link>
         </nav>
       </div>
 

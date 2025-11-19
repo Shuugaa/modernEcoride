@@ -2,7 +2,9 @@
 const express = require("express");
 const router = express.Router();
 const { auth } = require("../middleware/auth");
-const { addCredits } = require("../controllers/creditController");
+const { addCredits, getCredits } = require("../controllers/creditController");
+
+router.get("/", auth, getCredits);
 
 router.post("/add", auth, addCredits);
 
