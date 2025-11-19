@@ -38,7 +38,6 @@ export default function DashboardSidebar() {
               <Link to="/dashboard/conducteur" className="block px-3 py-2 rounded hover:bg-gray-100">Mon espace conducteur</Link>
               <Link to="/dashboard/conducteur/mes-trajets" className="block px-3 py-2 rounded hover:bg-gray-100">Mes trajets</Link>
               <Link to="/dashboard/conducteur/nouveau" className="block px-3 py-2 rounded hover:bg-gray-100">Nouveau trajet</Link>
-              <Link to="/dashboard/conducteur/reservations" className="block px-3 py-2 rounded hover:bg-gray-100">Réservations</Link>
             </>
           )}
 
