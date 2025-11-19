@@ -17,6 +17,8 @@ import TrajetDetail from "./pages/TrajetDetail";
 // Dashboard container pro
 import DashboardMain from "./pages/dashboard/DashboardMain";
 
+import RechargeCredits from "./pages/RechargeCredits";
+
 // Modules Admin
 import AdminModule from "./pages/dashboard/admin/AdminModule";
 import AdminUsers from "./pages/dashboard/admin/Users";
@@ -81,6 +83,8 @@ export default function App() {
             <Route path="passager/en-cours" element={<ReservationEnCours />} />
             <Route path="passager/historique" element={<HistoriqueTrajets />} />
             <Route path="passager/recherche" element={<RechercheShortcut />} />
+            
+            <Route path="recharge-credits" element={<RechargeCredits />} />
 
             {/* Routes admin */}
             <Route path="admin" element={<AdminModule />} />
