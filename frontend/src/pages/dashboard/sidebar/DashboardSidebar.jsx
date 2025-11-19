@@ -1,91 +1,79 @@
-// src/pages/dashboard/sidebar/DashboardSidebar.jsx
-import { Link, useLocation } from "react-router-dom";
+// frontend/src/pages/dashboard/sidebar/DashboardSidebar.jsx
+import { Link } from "react-router-dom";
 import { useUser } from "../../../context/UserContext";
-
-function Item({ to, children }) {
-  const loc = useLocation();
-  const active = loc.pathname === to;
-  return (
-    <Link
-      to={to}
-      className={
-        "flex items-center gap-3 px-4 py-2 rounded-md text-sm hover:bg-gray-100 " +
-        (active ? "bg-gray-100 font-semibold" : "text-gray-700")
-      }
-    >
-      {children}
-    </Link>
-  );
-}
 
 export default function DashboardSidebar() {
   const { user, hasRole } = useUser();
 
+  const userRoles = Array.isArray(user?.roles) ? user.roles : (user?.role ? [user.role] : []);
+
   return (
-    <aside className="w-72 bg-white border-r h-screen sticky top-0">
-      <div className="p-4 border-b">
-        {/* logo (optionnel) */}
-        <div className="flex items-center gap-3">
-          <div className="text-2xl">🌿</div>
+    <div className="sticky top-6">
+      <div className="bg-white p-4 rounded-xl shadow">
+        {/* header */}
+        <div className="flex items-center gap-3 mb-4">
+          {/* image preview using your uploaded file */}
+          <img src="/mnt/data/1e21c4ee-f58f-4f85-b52f-e98ab62f2dce.png" alt="logo" className="w-12 h-12 rounded-full object-cover" />
           <div>
-            <div className="font-bold">Carpool Nature</div>
-            <div className="text-xs text-gray-500">Tableau de bord</div>
+            <div className="font-semibold">{user?.prenom ?? "Utilisateur"}</div>
+            <div className="text-xs text-gray-500">{user?.email ?? "—"}</div>
           </div>
         </div>
+
+        {/* credits */}
+        <div className="mb-4 border rounded p-3 bg-gray-50">
+          <div className="text-sm text-gray-600">Crédits</div>
+          <div className="font-bold">{user?.credits ?? 0} ⚡</div>
+          <Link to="/credits" className="text-xs text-green-600 hover:underline">Recharger</Link>
+        </div>
+
+        {/* nav */}
+        <nav className="flex flex-col gap-1">
+          <Link to="/dashboard" className="block px-3 py-2 rounded hover:bg-gray-100">Accueil dashboard</Link>
+
+          {/* modules visibles selon rôles */}
+          {userRoles.includes("conducteur") && (
+            <>
+              <div className="mt-2 text-xs text-gray-500 px-3">Conducteur</div>
+              <Link to="/dashboard/conducteur" className="block px-3 py-2 rounded hover:bg-gray-100">Mon espace conducteur</Link>
+              <Link to="/dashboard/conducteur/mes-trajets" className="block px-3 py-2 rounded hover:bg-gray-100">Mes trajets</Link>
+              <Link to="/dashboard/conducteur/nouveau" className="block px-3 py-2 rounded hover:bg-gray-100">Nouveau trajet</Link>
+              <Link to="/dashboard/conducteur/reservations" className="block px-3 py-2 rounded hover:bg-gray-100">Réservations</Link>
+            </>
+          )}
+
+          {userRoles.includes("passager") && (
+            <>
+              <div className="mt-2 text-xs text-gray-500 px-3">Passager</div>
+              <Link to="/dashboard/passager" className="block px-3 py-2 rounded hover:bg-gray-100">Mon espace passager</Link>
+              <Link to="/dashboard/passager/en-cours" className="block px-3 py-2 rounded hover:bg-gray-100">Réservation en cours</Link>
+              <Link to="/dashboard/passager/historique" className="block px-3 py-2 rounded hover:bg-gray-100">Historique</Link>
+              <Link to="/recherche" className="block px-3 py-2 rounded hover:bg-gray-100">Rechercher un trajet</Link>
+            </>
+          )}
+
+          {userRoles.includes("employe") && (
+            <>
+              <div className="mt-2 text-xs text-gray-500 px-3">Employé</div>
+              <Link to="/dashboard/employe" className="block px-3 py-2 rounded hover:bg-gray-100">Espace employé</Link>
+            </>
+          )}
+
+          {userRoles.includes("admin") && (
+            <>
+              <div className="mt-2 text-xs text-gray-500 px-3">Admin</div>
+              <Link to="/dashboard/admin" className="block px-3 py-2 rounded hover:bg-gray-100">Administration</Link>
+            </>
+          )}
+        </nav>
       </div>
 
-      <nav className="p-4 space-y-2">
-        {/* Général */}
-        <div className="text-xs uppercase text-gray-400 px-2 mb-2">Général</div>
-        <Item to="/dashboard">Accueil</Item>
-        <Item to="/recherche">Rechercher</Item>
-
-        {/* Passager */}
-        {hasRole("passager") && (
-          <>
-            <div className="text-xs uppercase text-gray-400 px-2 mt-4 mb-2">Passager</div>
-            <Item to="/dashboard#passager">Mes réservations</Item>
-            <Item to="/recherche">Rechercher un trajet</Item>
-            <Item to="/reservations/mine">Réservations en cours</Item>
-          </>
-        )}
-
-        {/* Conducteur */}
-        {hasRole("conducteur") && (
-          <>
-            <div className="text-xs uppercase text-gray-400 px-2 mt-4 mb-2">Conducteur</div>
-            <Item to="/trajets/list">Mes trajets</Item>
-            <Item to="/trajets/new">Publier un trajet</Item>
-            <Item to="/trajets/reservations">Réservations reçues</Item>
-            <Item to="/dashboard#conducteur">Statistiques</Item>
-          </>
-        )}
-
-        {/* Employé / Admin */}
-        {hasRole("employe") && (
-          <>
-            <div className="text-xs uppercase text-gray-400 px-2 mt-4 mb-2">Employé</div>
-            <Item to="/employe/dashboard">Espace employé</Item>
-          </>
-        )}
-
-        {hasRole("admin") && (
-          <>
-            <div className="text-xs uppercase text-gray-400 px-2 mt-4 mb-2">Admin</div>
-            <Item to="/admin">Administration</Item>
-          </>
-        )}
-      </nav>
-
-      {/* footer credits / user */}
-      <div className="mt-auto p-4 border-t">
-        {user && (
-          <div className="text-sm">
-            <div className="font-semibold">{user.prenom} {user.nom}</div>
-            <div className="text-gray-500 text-xs">🔋 {user.credits} crédits</div>
-          </div>
-        )}
+      {/* small help card */}
+      <div className="mt-4 text-sm text-gray-600">
+        <div className="bg-white rounded-xl p-3 shadow">
+          Besoin d'aide ? Consulte la documentation interne ou contacte l'équipe.
+        </div>
       </div>
-    </aside>
+    </div>
   );
 }

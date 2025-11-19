@@ -11,6 +11,8 @@ import Layout from "./layouts/Layout";
 import Home from "./pages/Home";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
+import Recherche from "./pages/Recherche";
+import About from "./pages/About";
 
 // Dashboard container pro
 import DashboardMain from "./pages/dashboard/DashboardMain";
@@ -41,6 +43,8 @@ export default function App() {
           <Route path="/" element={<Home />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
+          <Route path="/recherche" element={<Recherche />} />
+          <Route path="/about" element={<About />} />
 
           {/* Redirection role → dashboard */}
           <Route
