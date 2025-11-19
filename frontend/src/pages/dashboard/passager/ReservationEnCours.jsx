@@ -13,9 +13,15 @@ export default function ReservationEnCours() {
       setLoading(true);
       setError(null);
       try {
-        const r = await apiFetch("/passager/reservation-active");
-        const data = r?.data ?? r?.reservation ?? r;
-        if (mounted) setResv(data || null);
+        const response = await apiFetch("/passager/en-cours");
+
+        if (response.success) {
+          // Prendre la première réservation ou toutes
+          const reservations = response.reservations_en_cours || [];
+          if (mounted) setResv(reservations[0] || null); // Première réservation
+        } else {
+          if (mounted) setError(response.message || "Erreur");
+        }
       } catch (err) {
         if (mounted) setError(err.message || "Erreur");
       } finally {

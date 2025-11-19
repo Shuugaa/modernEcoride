@@ -29,7 +29,7 @@ router.get("/recherche", auth, requirePassager, async (req, res) => {
              (t.places_disponibles - COALESCE(COUNT(r.id), 0)) as places_restantes
       FROM trajets t
       JOIN utilisateurs u ON t.conducteur_id = u.id
-      LEFT JOIN reservations r ON t.id = r.trajet_id AND r.status = 'confirmee'
+      LEFT JOIN reservations r ON t.id = r.trajet_id AND r.statut = 'confirmee'
       WHERE t.date_depart >= NOW()
         AND t.conducteur_id != $1
     `;
@@ -91,7 +91,7 @@ router.post("/reserver/:trajetId", auth, requirePassager, async (req, res) => {
       `SELECT t.*, 
               (t.places_disponibles - COALESCE(COUNT(r.id), 0)) as places_restantes
        FROM trajets t
-       LEFT JOIN reservations r ON t.id = r.trajet_id AND r.status = 'confirmee'
+       LEFT JOIN reservations r ON t.id = r.trajet_id AND r.statut = 'confirmee'
        WHERE t.id = $1 AND t.date_depart > NOW()
        GROUP BY t.id`,
       [trajetId]
@@ -215,7 +215,7 @@ router.delete("/reservations/:id", auth, requirePassager, async (req, res) => {
 
     // Annuler la réservation
     await pool.query(
-      "UPDATE reservations SET status = 'annulee' WHERE id = $1",
+      "UPDATE reservations SET statut = 'annulee' WHERE id = $1",
       [req.params.id]
     );
 
@@ -245,7 +245,7 @@ router.get("/historique", auth, requirePassager, async (req, res) => {
        JOIN utilisateurs u ON t.conducteur_id = u.id
        WHERE r.passager_id = $1 
          AND t.date_depart < NOW()
-         AND r.status = 'confirmee'
+         AND r.statut = 'confirmee'
        ORDER BY t.date_depart DESC`,
       [req.user.id]
     );
@@ -271,7 +271,7 @@ router.get("/en-cours", auth, requirePassager, async (req, res) => {
        JOIN utilisateurs u ON t.conducteur_id = u.id
        WHERE r.passager_id = $1 
          AND t.date_depart >= NOW()
-         AND r.status IN ('en_attente', 'confirmee')
+         AND r.statut IN ('en_attente', 'confirmee')
        ORDER BY t.date_depart ASC`,
       [req.user.id]
     );
@@ -292,9 +292,9 @@ router.get("/stats", auth, requirePassager, async (req, res) => {
     const stats = await pool.query(
       `SELECT 
          COUNT(DISTINCT r.id) as nb_reservations_total,
-         COUNT(DISTINCT CASE WHEN r.status = 'confirmee' AND t.date_depart < NOW() THEN r.id END) as nb_trajets_effectues,
-         COUNT(DISTINCT CASE WHEN r.status = 'en_attente' THEN r.id END) as nb_en_attente,
-         COALESCE(SUM(CASE WHEN r.status = 'confirmee' THEN r.prix_total ELSE 0 END), 0) as total_depense
+         COUNT(DISTINCT CASE WHEN r.statut = 'confirmee' AND t.date_depart < NOW() THEN r.id END) as nb_trajets_effectues,
+         COUNT(DISTINCT CASE WHEN r.statut = 'en_attente' THEN r.id END) as nb_en_attente,
+         COALESCE(SUM(CASE WHEN r.statut = 'confirmee' THEN r.prix_total ELSE 0 END), 0) as total_depense
        FROM reservations r
        JOIN trajets t ON r.trajet_id = t.id
        WHERE r.passager_id = $1`,

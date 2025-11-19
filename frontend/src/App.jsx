@@ -22,14 +22,15 @@ import AdminModule from "./pages/dashboard/admin/AdminModule";
 import AdminUsers from "./pages/dashboard/admin/Users";
 import AdminStats from "./pages/dashboard/admin/Stats";
 import CreateEmployee from "./pages/dashboard/admin/CreateEmployee";
+import AdminTrajets from "./pages/dashboard/admin/AdminTrajets";
 
 // Pages conducteur
 import ConducteurIndex from "./pages/dashboard/conducteur/index";
 import MesTrajets from "./pages/dashboard/conducteur/MesTrajets";
 import NouveauTrajet from "./pages/dashboard/conducteur/NouveauTrajet";
-import TrajetsReservations from "./pages/dashboard/conducteur/TrajetsReservations";
 
 // Pages passager
+import PassagerIndex from "./pages/dashboard/passager/index";
 import HistoriqueTrajets from "./pages/dashboard/passager/HistoriqueTrajets";
 import ReservationEnCours from "./pages/dashboard/passager/ReservationEnCours";
 import RechercheShortcut from "./pages/dashboard/passager/RechercheShortcut";
@@ -50,7 +51,7 @@ export default function App() {
           <Route path="/recherche" element={<Recherche />} />
           <Route path="/about" element={<About />} />
           <Route path="/trajet/:id" element={<TrajetDetail />} />
-          
+
           {/* Redirection role → dashboard */}
           <Route
             path="/dashboard"
@@ -74,15 +75,16 @@ export default function App() {
             <Route path="conducteur" element={<ConducteurIndex />} />
             <Route path="conducteur/mes-trajets" element={<MesTrajets />} />
             <Route path="conducteur/nouveau" element={<NouveauTrajet />} />
-            <Route path="conducteur/reservations" element={<TrajetsReservations />} />
 
             {/* Routes passager existantes */}
+            <Route path="passager" element={<PassagerIndex />} />
             <Route path="passager/en-cours" element={<ReservationEnCours />} />
             <Route path="passager/historique" element={<HistoriqueTrajets />} />
             <Route path="passager/recherche" element={<RechercheShortcut />} />
 
             {/* Routes admin */}
             <Route path="admin" element={<AdminModule />} />
+            <Route path="admin/trajets" element={<AdminTrajets />} />
             <Route path="admin/users" element={<AdminUsers />} />
             <Route path="admin/stats" element={<AdminStats />} />
             <Route path="admin/create-employee" element={<CreateEmployee />} />
