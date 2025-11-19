@@ -1,5 +1,5 @@
 // backend/controllers/adminController.js
-const { pool } = require("../db");
+const { pool } = require("../config/db");
 
 async function listUsers(req, res) {
   try {
@@ -22,10 +22,7 @@ async function listUsers(req, res) {
 async function getUser(req, res) {
   try {
     const id = Number(req.params.id);
-    const { rows } = await pool.query(
-      `SELECT id, nom, prenom, email, roles, credits, created_at FROM utilisateurs WHERE id = $1`,
-      [id]
-    );
+    const { rows } = await pool.query(`SELECT id, nom, prenom, email, roles, credits, created_at FROM utilisateurs WHERE id = $1`, [id]);
     if (!rows[0]) return res.status(404).json({ success: false, message: "Utilisateur non trouvé" });
     res.json({ success: true, user: rows[0] });
   } catch (err) {
@@ -40,10 +37,7 @@ async function updateUserRoles(req, res) {
     const { roles } = req.body;
     if (!Array.isArray(roles)) return res.status(400).json({ success: false, message: "roles must be array" });
 
-    const { rows } = await pool.query(
-      `UPDATE utilisateurs SET roles = $1 WHERE id = $2 RETURNING id, roles`,
-      [roles, id]
-    );
+    const { rows } = await pool.query(`UPDATE utilisateurs SET roles = $1 WHERE id = $2 RETURNING id, roles`, [roles, id]);
     if (!rows[0]) return res.status(404).json({ success: false, message: "Utilisateur non trouvé" });
     res.json({ success: true, user: rows[0] });
   } catch (err) {
@@ -55,10 +49,7 @@ async function updateUserRoles(req, res) {
 async function deactivateUser(req, res) {
   try {
     const id = Number(req.params.id);
-    const { rows } = await pool.query(
-      `UPDATE utilisateurs SET roles = ARRAY[]::text[] WHERE id = $1 RETURNING id`,
-      [id]
-    );
+    const { rows } = await pool.query(`UPDATE utilisateurs SET roles = ARRAY[]::text[] WHERE id = $1 RETURNING id`, [id]);
     if (!rows[0]) return res.status(404).json({ success: false, message: "Utilisateur non trouvé" });
     res.json({ success: true, message: "Utilisateur désactivé" });
   } catch (err) {
@@ -70,9 +61,7 @@ async function deactivateUser(req, res) {
 async function listTrajets(req, res) {
   try {
     const conducteur_id = req.query.conducteur_id;
-    let base = `SELECT t.*, u.nom AS conducteur_nom, u.prenom AS conducteur_prenom
-                FROM trajets t
-                LEFT JOIN utilisateurs u ON u.id = t.conducteur_id`;
+    let base = `SELECT t.*, u.nom AS conducteur_nom, u.prenom AS conducteur_prenom FROM trajets t LEFT JOIN utilisateurs u ON u.id = t.conducteur_id`;
     const params = [];
     if (conducteur_id) {
       base += ` WHERE t.conducteur_id = $1`;

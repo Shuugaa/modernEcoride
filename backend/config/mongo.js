@@ -1,15 +1,19 @@
-// backend/mongo.js
-const mongoose = require('mongoose');
-require('dotenv').config();
+// backend/config/mongo.js
+const mongoose = require("mongoose");
+require("dotenv").config();
 
 async function connectMongo() {
-  const uri = process.env.MONGO_URI;
-  if (!uri) {
-    console.warn('⚠️ MONGO_URI not set — skipping Mongo connection');
-    return;
+  const url = process.env.MONGO_URL || process.env.MONGO_URI || "mongodb://localhost:27017/carpool";
+  try {
+    await mongoose.connect(url, {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+    });
+    console.log("MongoDB connecté");
+  } catch (err) {
+    console.error("Erreur connexion MongoDB:", err);
+    throw err;
   }
-  await mongoose.connect(uri);
-  console.log('🟢 MongoDB connected');
 }
 
 module.exports = connectMongo;

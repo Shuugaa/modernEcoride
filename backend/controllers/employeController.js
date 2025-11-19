@@ -1,5 +1,5 @@
 // backend/controllers/employeController.js
-const { pool } = require("../db");
+const { pool } = require("../config/db");
 
 async function monitoring(req, res) {
   try {

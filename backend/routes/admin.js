@@ -1,11 +1,11 @@
 // backend/routes/admin.js
 const express = require("express");
 const router = express.Router();
-const { auth } = require("../middleware/auth");
-const { hasRole } = require("../middleware/roles");
 const adminController = require("../controllers/adminController");
+const { auth } = require("../middleware/auth");
+const { requireRole } = require("../middleware/roles");
 
-router.use(auth, hasRole("admin"));
+router.use(auth, requireRole("admin"));
 
 router.get("/users", adminController.listUsers);
 router.get("/users/:id", adminController.getUser);

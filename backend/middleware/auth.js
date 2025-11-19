@@ -8,10 +8,10 @@ function auth(req, res, next) {
     if (!token) return res.status(401).json({ success: false, message: "Non authentifié" });
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    // decoded should contain { id, roles }
-    req.user = decoded;
+    req.user = decoded; // { id, roles } (roles is TEXT[] from DB)
     next();
   } catch (err) {
+    console.error("JWT error:", err);
     return res.status(401).json({ success: false, message: "Token invalide" });
   }
 }

@@ -1,11 +1,11 @@
 // backend/routes/employe.js
 const express = require("express");
 const router = express.Router();
-const { auth } = require("../middleware/auth");
-const { hasRole } = require("../middleware/roles");
 const employeController = require("../controllers/employeController");
+const { auth } = require("../middleware/auth");
+const { requireRole } = require("../middleware/roles");
 
-router.use(auth, hasRole("employe"));
+router.use(auth, requireRole("employe"));
 
 router.get("/monitoring", employeController.monitoring);
 router.get("/support", employeController.listSupportTickets);

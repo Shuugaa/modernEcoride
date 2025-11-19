@@ -1,11 +1,11 @@
 // backend/controllers/trajetController.js
-const { pool } = require("../db");
+const { pool } = require("../config/db");
+const SearchLog = require("../models_mongo/SearchLog");
 
 async function createTrajet(req, res) {
   try {
     const conducteurId = req.user.id;
     const { depart, arrivee, date_depart, places_disponibles, prix, vehicule_id } = req.body;
-
     if (!depart || !arrivee || !date_depart || !places_disponibles || !prix) {
       return res.status(400).json({ success: false, message: "Champs manquants" });
     }
@@ -15,7 +15,6 @@ async function createTrajet(req, res) {
        VALUES ($1,$2,$3,$4,$5,$6,$7) RETURNING *`,
       [conducteurId, vehicule_id || null, depart, arrivee, date_depart, places_disponibles, prix]
     );
-
     res.json({ success: true, trajet: rows[0] });
   } catch (err) {
     console.error(err);
@@ -58,6 +57,21 @@ async function searchTrajets(req, res) {
     const { depart = "", arrivee = "" } = req.query;
     const qDepart = `%${depart}%`;
     const qArrivee = `%${arrivee}%`;
+
+    // write to Mongo search log (best-effort)
+    try {
+      await SearchLog.create({
+        userId: req.user?.id ?? null,
+        depart,
+        arrivee,
+        filters: req.query || {},
+        ip: req.ip,
+        userAgent: req.headers["user-agent"]
+      });
+    } catch (e) {
+      console.warn("SearchLog failed:", e);
+    }
+
     const { rows } = await pool.query(
       `SELECT t.*, u.prenom AS conducteur_prenom, u.nom AS conducteur_nom
        FROM trajets t

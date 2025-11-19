@@ -1,7 +1,7 @@
 // backend/controllers/authController.js
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
-const { pool } = require("../db");
+const { pool } = require("../config/db");
 require("dotenv").config();
 
 const JWT_EXPIRES = "7d";
@@ -41,7 +41,6 @@ async function login(req, res) {
 
     const token = jwt.sign({ id: user.id, roles: user.roles }, process.env.JWT_SECRET, { expiresIn: JWT_EXPIRES });
 
-    // cookie
     res.cookie("token", token, {
       httpOnly: true,
       sameSite: "lax",

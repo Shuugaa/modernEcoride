@@ -1,5 +1,5 @@
 // backend/controllers/reservationController.js
-const { pool } = require("../db");
+const { pool } = require("../config/db");
 
 async function reserverTrajet(req, res) {
   const client = await pool.connect();
@@ -22,7 +22,6 @@ async function reserverTrajet(req, res) {
       return res.status(400).json({ success: false, message: "Pas assez de places" });
     }
 
-    // Check credits
     const userQ = await client.query("SELECT credits FROM utilisateurs WHERE id = $1 FOR UPDATE", [passagerId]);
     const user = userQ.rows[0];
     const total = Number(trajet.prix) * Number(places);
@@ -32,24 +31,15 @@ async function reserverTrajet(req, res) {
       return res.status(400).json({ success: false, message: "Crédits insuffisants" });
     }
 
-    // create reservation
     const resQ = await client.query(
       `INSERT INTO reservations (trajet_id, passager_id, places_reservees, total_prix)
        VALUES ($1,$2,$3,$4) RETURNING *`,
       [trajetId, passagerId, places, total]
     );
 
-    // update trajets places
-    await client.query(
-      "UPDATE trajets SET places_disponibles = places_disponibles - $1 WHERE id = $2",
-      [places, trajetId]
-    );
+    await client.query("UPDATE trajets SET places_disponibles = places_disponibles - $1 WHERE id = $2", [places, trajetId]);
 
-    // deduct credits
-    const updated = await client.query(
-      `UPDATE utilisateurs SET credits = credits - $1 WHERE id = $2 RETURNING credits`,
-      [total, passagerId]
-    );
+    const updated = await client.query(`UPDATE utilisateurs SET credits = credits - $1 WHERE id = $2 RETURNING credits`, [total, passagerId]);
 
     await client.query("COMMIT");
 
