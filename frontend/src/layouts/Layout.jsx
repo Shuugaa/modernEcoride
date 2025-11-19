@@ -4,7 +4,15 @@ import { useUser } from "../context/UserContext";
 
 export default function Layout() {
 
-  const { user, hasRole } = useUser();
+  const { user, loading, hasRole } = useUser();
+
+  if (loading) {
+    return (
+      <div className="h-screen flex items-center justify-center">
+        <p>Chargement...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
@@ -25,7 +33,6 @@ export default function Layout() {
             <Link to="/recherche" className="hover:underline">Rechercher</Link>
             <Link to="/about" className="hover:underline">À propos</Link>
 
-            {/* Liens spécifiques selon rôle */}
             {user && (
               <>
                 {hasRole("conducteur") && (
@@ -55,21 +62,23 @@ export default function Layout() {
             )}
 
             {/* MENU UTILISATEUR */}
-            <UserMenu />
+            {user ? (
+              <UserMenu />
+            ) : (
+              <Link to="/login" className="hover:underline">Connexion</Link>
+            )}
 
           </nav>
 
         </div>
       </header>
 
-      {/* CONTENU */}
       <main className="flex-1 py-8 px-4">
         <div className="max-w-6xl mx-auto">
           <Outlet />
         </div>
       </main>
 
-      {/* FOOTER */}
       <footer className="bg-brand-dark text-white text-center py-4 mt-8">
         © {new Date().getFullYear()} Carpool Nature — Tous droits réservés.
       </footer>

@@ -72,13 +72,26 @@ export function UserProvider({ children }) {
     setUser(null);
   }
 
+
+  function normalizeRole(role) {
+    return role
+      .toLowerCase()
+      .replace("é", "e")
+      .replace("administrateur", "admin");
+  }
+
   // ────────────────────────────────
   // 4) Helper : vérifier rôle
   // ────────────────────────────────
   function hasRole(role) {
     if (!user || !user.roles) return false;
-    return user.roles.includes(role);
+
+    const roles = user.roles.map(r => normalizeRole(r));
+    const target = normalizeRole(role);
+
+    return roles.includes(target);
   }
+
 
   return (
     <UserContext.Provider value={{
