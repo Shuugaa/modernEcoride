@@ -43,9 +43,10 @@ async function login(req, res) {
 
     res.cookie("token", token, {
       httpOnly: true,
-      sameSite: "lax",
-      secure: process.env.NODE_ENV === "production"
+      sameSite: "lax",   // obligatoire en localhost
+      secure: false      // sinon Chrome bloque en dev
     });
+
 
     res.json({ success: true, message: "Connecté" });
   } catch (err) {
