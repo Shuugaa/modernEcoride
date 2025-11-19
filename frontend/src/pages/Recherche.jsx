@@ -3,14 +3,14 @@ import { useState } from "react";
 export default function Recherche() {
   const [depart, setDepart] = useState("");
   const [arrivee, setArrivee] = useState("");
-  const [results, setResults] = useState([]);
+  const [trajets, setTrajets] = useState([]);
 
   const search = async () => {
     const res = await fetch(
       `http://localhost:5000/trajets/search?depart=${depart}&arrivee=${arrivee}`
     );
     const data = await res.json();
-    setResults(data.results || []);
+    setTrajets(data.trajets || []);
   };
 
   return (
@@ -40,13 +40,16 @@ export default function Recherche() {
       </div>
 
       <div className="mt-6">
-        {results.length === 0 && <p>Aucun résultat pour le moment.</p>}
+        {trajets.length === 0 && <p>Aucun résultat pour le moment.</p>}
 
-        {results.map((t) => (
+        {trajets.map((t) => (
           <div key={t.id} className="border p-3 rounded mb-3 shadow">
             <p><strong>{t.depart} → {t.arrivee}</strong></p>
-            <p>Date : {t.date}</p>
-            <p>Conducteur : {t.conducteur}</p>
+            <p>Date : {new Date(t.date_depart).toLocaleDateString()}</p>
+            <p>Conducteur : {t.conducteur_id}</p>
+            <p>Places disponibles : {t.places_disponibles}</p>
+            <p>Prix : {t.prix} €</p>
+            <a href={`/reservations/${t.id}`} className="text-blue-600 underline">Voir les détails</a>
           </div>
         ))}
       </div>

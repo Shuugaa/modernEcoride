@@ -48,6 +48,20 @@ CREATE TABLE IF NOT EXISTS reservations (
   created_at TIMESTAMP DEFAULT now()
 );
 
+ALTER TABLE utilisateurs ADD COLUMN IF NOT EXISTS active BOOLEAN DEFAULT TRUE;
+
+CREATE TABLE IF NOT EXISTS support_tickets (
+  id SERIAL PRIMARY KEY,
+  utilisateur_id INTEGER NOT NULL REFERENCES utilisateurs(id) ON DELETE CASCADE,
+  sujet TEXT NOT NULL,
+  message TEXT NOT NULL,
+  statut VARCHAR(30) DEFAULT 'ouvert',
+  reponse TEXT,
+  created_at TIMESTAMP DEFAULT now(),
+  updated_at TIMESTAMP DEFAULT now()
+);
+
+
 -- Optionnel : table session (connect-pg-simple peut la créer automatiquement)
 CREATE TABLE IF NOT EXISTS "session" (
   "sid" varchar NOT NULL,

@@ -1,10 +1,18 @@
-// src/components/Layout.jsx
 import { Link, Outlet } from "react-router-dom";
 import UserMenu from "../components/UserMenu";
 import { useUser } from "../context/UserContext";
 
 export default function Layout() {
-  const { user } = useUser();  // pour conditionner certains liens
+
+  const { user, loading, hasRole } = useUser();
+
+  if (loading) {
+    return (
+      <div className="h-screen flex items-center justify-center">
+        <p>Chargement...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
@@ -25,29 +33,52 @@ export default function Layout() {
             <Link to="/recherche" className="hover:underline">Rechercher</Link>
             <Link to="/about" className="hover:underline">À propos</Link>
 
-            {/* Afficher lien dashboard seulement si connecté */}
             {user && (
-              <Link to="/dashboard" className="hover:underline">
-                Tableau de bord
-              </Link>
+              <>
+                {hasRole("conducteur") && (
+                  <Link to="/dashboard/conducteur" className="hover:underline">
+                    Espace Conducteur
+                  </Link>
+                )}
+
+                {hasRole("passager") && (
+                  <Link to="/dashboard/passager" className="hover:underline">
+                    Espace Passager
+                  </Link>
+                )}
+
+                {hasRole("employe") && (
+                  <Link to="/dashboard/employe" className="hover:underline">
+                    Espace Employé
+                  </Link>
+                )}
+
+                {hasRole("admin") && (
+                  <Link to="/dashboard/admin" className="hover:underline">
+                    Admin
+                  </Link>
+                )}
+              </>
             )}
 
-            {/* Menu utilisateur (Login / Register ou Bonjour + crédits + Déconnexion) */}
-            <UserMenu />
+            {/* MENU UTILISATEUR */}
+            {user ? (
+              <UserMenu />
+            ) : (
+              <Link to="/login" className="hover:underline">Connexion</Link>
+            )}
 
           </nav>
 
         </div>
       </header>
 
-      {/* CONTENU */}
       <main className="flex-1 py-8 px-4">
         <div className="max-w-6xl mx-auto">
           <Outlet />
         </div>
       </main>
 
-      {/* FOOTER */}
       <footer className="bg-brand-dark text-white text-center py-4 mt-8">
         © {new Date().getFullYear()} Carpool Nature — Tous droits réservés.
       </footer>

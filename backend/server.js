@@ -1,61 +1,75 @@
 // backend/server.js
 const express = require("express");
-const cors = require("cors");
-const helmet = require("helmet");
 const cookieParser = require("cookie-parser");
-
-const sessionMiddleware = require("./session");
-const connectMongo = require("./mongo");
-const pool = require("./db");
-
-const authRoutes = require("./routes/auth");
-const vehiculesRoutes = require("./routes/vehicules");
-const trajetsRoutes = require("./routes/trajets");
-const roleRoutes = require("./routes/roles");
-const reservationRoutes = require("./routes/reservation");
-const creditsRoutes = require("./routes/credits");
-
+const cors = require("cors");
 require("dotenv").config();
 
-const app = express();
-const PORT = process.env.PORT || 5000;
+const connectMongo = require("./config/mongo");
+const { pool } = require("./config/db");  // ← CONNECTION SQL IMPORTÉE
 
-// --------- Middlewares globaux ----------
-app.use(helmet());
+// Routes
+const authRoutes = require("./routes/auth");
+const trajetRoutes = require("./routes/trajets");
+const reservationRoutes = require("./routes/reservation");
+const creditRoutes = require("./routes/credits");
+const vehiculeRoutes = require("./routes/vehicule");
+const adminRoutes = require("./routes/admin");
+const employeRoutes = require("./routes/employe");
+
+const app = express();
+
 app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
-// CORS complet (sessions + préflight)
-app.use(
-  cors({
-    origin: process.env.CORS_ORIGIN,
-    credentials: true,
-    methods: "GET,POST,PUT,DELETE,OPTIONS",
-    allowedHeaders: "Content-Type"
-  })
-);
+// CORS
+app.use(cors({
+  origin: process.env.CORS_ORIGIN || "http://localhost:5173",
+  credentials: true,
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"]
+}));
 
-// Répondre globalement aux OPTIONS (préflight)
-app.options("*", cors());
-
-app.use(sessionMiddleware);
-
-// --------- Connexions DB ----------
-connectMongo().catch(err => console.error("Mongo error:", err));
-
-// --------- Routes ----------
+// Routes
 app.use("/auth", authRoutes);
-app.use("/vehicules", vehiculesRoutes);
-app.use("/trajets", trajetsRoutes);
-app.use("/roles", roleRoutes);
-app.use("/reservation", reservationRoutes);
-app.use("/credits", creditsRoutes);
+app.use("/trajets", trajetRoutes);
+app.use("/reservations", reservationRoutes);
+app.use("/credits", creditRoutes);
+app.use("/api/vehicules", vehiculeRoutes);
+app.use("/admin", adminRoutes);
+app.use("/employe", employeRoutes);
 
-app.get("/api/health", (req, res) => {
-  res.json({ status: "ok", time: new Date() });
-});
+// Vérifier PostgreSQL avant de lancer
+async function ensurePostgres(retries = 10) {
+  while (retries > 0) {
+    try {
+      await pool.query("SELECT NOW()");
+      console.log("PostgreSQL connecté");
+      return;
+    } catch (err) {
+      console.log("Postgres pas prêt, retry...");
+      retries--;
+      await new Promise(res => setTimeout(res, 2000));
+    }
+  }
+  throw new Error("Impossible de se connecter à PostgreSQL");
+}
 
-app.listen(PORT, "0.0.0.0", () => {
-  console.log(`🚀 Backend running on port ${PORT}`);
-});
+
+// health
+app.get("/", (req, res) => res.json({ success: true, message: "Backend OK" }));
+
+const PORT = process.env.PORT || 5000;
+
+(async () => {
+  try {
+    await ensurePostgres();  // ← CHECK SQL
+    await connectMongo();    // ← CHECK NOSQL
+
+    app.listen(PORT, () => {
+      console.log(`Backend démarré sur ${PORT}`);
+    });
+
+  } catch (err) {
+    console.error("Erreur critique au démarrage :", err);
+    process.exit(1);
+  }
+})();

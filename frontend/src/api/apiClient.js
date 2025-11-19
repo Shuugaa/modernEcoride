@@ -27,3 +27,5 @@ async function safeJson(res) {
     return {};
   }
 }
+
+export default apiFetch;
