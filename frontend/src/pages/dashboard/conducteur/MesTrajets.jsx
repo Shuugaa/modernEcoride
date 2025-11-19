@@ -14,7 +14,7 @@ export default function MesTrajets() {
       setLoading(true);
       setError(null);
       try {
-        const res = await apiFetch("/conducteur/mes-trajets");
+        const res = await apiFetch("/conducteur/trajets/mine");
         // backend: { success: true, data: [...] } or directly array
         const data = res?.data ?? res?.trajets ?? res;
         if (mounted) setTrajets(data || []);

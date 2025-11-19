@@ -6,9 +6,12 @@ export default function Home() {
 
       {/* HERO */}
       <section className="bg-white p-10 rounded-xl shadow-md border border-brand-light">
-        <h1 className="text-4xl font-extrabold text-brand-verydark mb-4">
-          Covoiturez autrement, naturellement 🌿
+        <h1 className="text-5xl font-bold text-gray-900 mb-6">
+          Bienvenue sur <span className="text-green-600">EcoRide</span>
         </h1>
+        <p className="text-xl text-gray-600 mb-8 max-w-2xl">
+          Le covoiturage écologique qui vous fait économiser tout en préservant la planète 🌱
+        </p>
 
         <p className="text-lg text-gray-700 max-w-2xl mb-6">
           Réduisez votre empreinte carbone, partagez vos trajets et rencontrez des conducteurs et passagers

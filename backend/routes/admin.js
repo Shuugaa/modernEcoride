@@ -5,7 +5,7 @@ const adminController = require("../controllers/adminController");
 const { auth } = require("../middleware/auth");
 const { requireRole } = require("../middleware/roles");
 
-router.use(auth, requireRole("admin"));
+router.use(auth, requireRole("administrateur"));
 
 router.get("/users", adminController.listUsers);
 router.get("/users/:id", adminController.getUser);

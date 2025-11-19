@@ -1,26 +1,41 @@
-// backend/controllers/authController.js
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const { pool } = require("../config/db");
 require("dotenv").config();
 
-const JWT_EXPIRES = "7d";
 const register = async (req, res) => {
   const { nom, prenom, email, password, roles } = req.body;
+
+  // Règles de validation des rôles
+  const rolesPublics = ["passager", "conducteur"]; // Accessibles via register public
+  const rolesRestreints = ["employe", "administrateur"]; // Seulement via admin
+
+  // Vérifier qu'aucun rôle restreint n'est demandé via register public
+  const rolesNonAutorises = roles.filter(role => rolesRestreints.includes(role));
+  if (rolesNonAutorises.length > 0) {
+    return res.status(403).json({ 
+      success: false, 
+      message: `Les rôles ${rolesNonAutorises.join(', ')} ne peuvent être attribués que par un administrateur` 
+    });
+  }
+
+  // Vérifier que tous les rôles demandés sont valides
+  const rolesInvalides = roles.filter(role => !rolesPublics.includes(role));
+  if (rolesInvalides.length > 0) {
+    return res.status(400).json({ 
+      success: false, 
+      message: `Rôles non autorisés: ${rolesInvalides.join(', ')}` 
+    });
+  }
 
   try {
     const saltRounds = 12;
     const hashedPassword = await bcrypt.hash(password, saltRounds);
-
-    // Assure-toi que roles est un array valide
     let rolesArray = Array.isArray(roles) ? roles : [roles];
-    
-    console.log("📋 Roles reçus:", roles);
-    console.log("📋 Roles array:", rolesArray);
 
     const newUser = await pool.query(
       "INSERT INTO utilisateurs (nom, prenom, email, password_hash, roles) VALUES ($1, $2, $3, $4, $5) RETURNING *",
-      [nom, prenom, email, hashedPassword, JSON.stringify(rolesArray)] // ← JSON.stringify ici
+      [nom, prenom, email, hashedPassword, JSON.stringify(rolesArray)]
     );
 
     const user = newUser.rows[0];
@@ -29,18 +44,17 @@ const register = async (req, res) => {
       { 
         id: user.id, 
         email: user.email,
-        roles: user.roles // ← JSON.parse ici
+        roles: user.roles
       }, 
       process.env.JWT_SECRET, 
       { expiresIn: "7d" }
     );
 
-    // Set le cookie JWT
     res.cookie("token", token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: "lax",
-      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 jours
+      maxAge: 7 * 24 * 60 * 60 * 1000,
     });
 
     res.json({ 
@@ -49,18 +63,17 @@ const register = async (req, res) => {
     });
 
   } catch (err) {
-  console.error("Erreur register:", err);
-  
-  // Gestion spécifique de l'email en doublon
-  if (err.code === '23505' && err.constraint === 'utilisateurs_email_key') {
-    return res.status(400).json({ 
-      success: false, 
-      message: "Cet email est déjà utilisé" 
-    });
+    console.error("Erreur register:", err);
+    
+    if (err.code === '23505' && err.constraint === 'utilisateurs_email_key') {
+      return res.status(400).json({ 
+        success: false, 
+        message: "Cet email est déjà utilisé" 
+      });
+    }
+    
+    res.status(500).json({ success: false, message: "Erreur serveur" });
   }
-  
-  res.status(500).json({ success: false, message: "Erreur serveur" });
-}
 };
 
 async function login(req, res) {
@@ -68,12 +81,25 @@ async function login(req, res) {
     const { email, password } = req.body;
     const { rows } = await pool.query("SELECT * FROM utilisateurs WHERE email = $1", [email]);
     const user = rows[0];
+    
     if (!user) return res.status(400).json({ success: false, message: "Email inconnu" });
 
     const valid = await bcrypt.compare(password, user.password_hash);
     if (!valid) return res.status(400).json({ success: false, message: "Mot de passe incorrect" });
 
-    const token = jwt.sign({ id: user.id, roles: user.roles }, process.env.JWT_SECRET, { expiresIn: JWT_EXPIRES });
+    // ← CORRECTION : Parse les rôles depuis la base
+    const userRoles = typeof user.roles === 'string' 
+      ? JSON.parse(user.roles) 
+      : user.roles;
+
+    const token = jwt.sign(
+      { 
+        id: user.id, 
+        roles: userRoles  // ← Utilise les rôles parsés
+      }, 
+      process.env.JWT_SECRET, 
+      { expiresIn: "7d" }
+    );
 
     res.cookie("token", token, {
       httpOnly: true,
@@ -82,32 +108,45 @@ async function login(req, res) {
       path: "/"
     });
 
-
     res.json({ success: true, message: "Connecté" });
   } catch (err) {
-    console.error(err);
+    console.error("Erreur login:", err);
     res.status(500).json({ success: false, message: "Erreur serveur" });
   }
 }
 
 async function me(req, res) {
   try {
-    const id = req.user.id;
-    const { rows } = await pool.query(
-      "SELECT id, nom, prenom, email, roles, credits FROM utilisateurs WHERE id = $1",
-      [id]
-    );
-    if (!rows[0]) return res.status(404).json({ success: false, message: "Utilisateur introuvable" });
-    res.json({ success: true, user: rows[0] });
+    const { rows } = await pool.query("SELECT * FROM utilisateurs WHERE id = $1", [req.user.id]);
+    const user = rows[0];
+
+    if (!user) {
+      return res.status(404).json({ success: false, message: "Utilisateur non trouvé" });
+    }
+
+    // ← CORRECTION : Parse les rôles 
+    const userRoles = typeof user.roles === 'string' 
+      ? JSON.parse(user.roles) 
+      : user.roles;
+
+    res.json({ 
+      success: true, 
+      user: {
+        id: user.id,
+        nom: user.nom,
+        prenom: user.prenom,
+        email: user.email,
+        roles: userRoles,  // ← Utilise les rôles parsés
+        credits: user.credits
+      }
+    });
   } catch (err) {
-    console.error(err);
+    console.error("Erreur me:", err);
     res.status(500).json({ success: false, message: "Erreur serveur" });
   }
 }
 
-// backend/controllers/authController.js
 const logout = async (req, res) => {
-  // Supprime le cookie JWT
   res.clearCookie('token');
   res.json({ success: true, message: "Déconnecté" });
 };

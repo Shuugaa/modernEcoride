@@ -23,7 +23,7 @@ export default function Layout() {
 
           {/* LOGO */}
           <Link to="/" className="text-2xl font-bold tracking-wide flex items-center gap-2">
-            🌿 Carpool Nature
+            🌿 EcoRide
           </Link>
 
           {/* NAVIGATION */}

@@ -12,9 +12,9 @@ async function listUsers(req, res) {
        FROM utilisateurs ORDER BY id DESC LIMIT $1 OFFSET $2`,
       [limit, offset]
     );
+
     res.json({ success: true, users: usersQ.rows });
   } catch (err) {
-    console.error(err);
     res.status(500).json({ success: false, message: "Erreur serveur" });
   }
 }
@@ -98,5 +98,66 @@ async function siteStats(req, res) {
     res.status(500).json({ success: false, message: "Erreur serveur" });
   }
 }
+async function createEmployee(req, res) {
+  const { nom, prenom, email, password, roles } = req.body;
 
-module.exports = { listUsers, getUser, updateUserRoles, deactivateUser, listTrajets, siteStats };
+  // Vérifier que l'utilisateur connecté est admin
+  const userRoles = req.user.roles || [];
+  if (!userRoles.includes('administrateur')) {
+    return res.status(403).json({ 
+      success: false, 
+      message: "Seuls les administrateurs peuvent créer des employés" 
+    });
+  }
+
+  const rolesAutorises = ["passager", "conducteur", "employe", "administrateur"];
+  const rolesValides = roles.every(role => rolesAutorises.includes(role));
+  
+  if (!rolesValides) {
+    return res.status(400).json({ 
+      success: false, 
+      message: "Rôles non autorisés" 
+    });
+  }
+
+  try {
+    const saltRounds = 12;
+    const hashedPassword = await bcrypt.hash(password, saltRounds);
+    let rolesArray = Array.isArray(roles) ? roles : [roles];
+
+    const newUser = await pool.query(
+      "INSERT INTO utilisateurs (nom, prenom, email, password_hash, roles) VALUES ($1, $2, $3, $4, $5) RETURNING *",
+      [nom, prenom, email, hashedPassword, JSON.stringify(rolesArray)]
+    );
+
+    const user = newUser.rows[0];
+    const userRoles = JSON.parse(user.roles);
+
+    res.json({ 
+      success: true, 
+      message: "Utilisateur créé avec succès",
+      user: {
+        id: user.id,
+        nom: user.nom,
+        prenom: user.prenom,
+        email: user.email,
+        roles: userRoles,
+        credits: user.credits
+      }
+    });
+
+  } catch (err) {
+    console.error("Erreur createEmployee:", err);
+    
+    if (err.code === '23505' && err.constraint === 'utilisateurs_email_key') {
+      return res.status(400).json({ 
+        success: false, 
+        message: "Cet email est déjà utilisé" 
+      });
+    }
+    
+    res.status(500).json({ success: false, message: "Erreur serveur" });
+  }
+}
+  
+module.exports = { listUsers, getUser, updateUserRoles, deactivateUser, listTrajets, siteStats, createEmployee };

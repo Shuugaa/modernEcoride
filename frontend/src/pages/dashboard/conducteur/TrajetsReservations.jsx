@@ -13,7 +13,7 @@ export default function TrajetsReservations() {
       setLoading(true);
       setError(null);
       try {
-        const res = await apiFetch("/conducteur/reservations");
+        const res = await apiFetch("/reservations/mine");
         const data = res?.data ?? res?.reservations ?? res;
         if (mounted) setList(data || []);
       } catch (err) {
