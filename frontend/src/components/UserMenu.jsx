@@ -97,14 +97,14 @@ export default function UserMenu() {
           )}
 
           {/* EMPLOYÉ - à créer ou supprimer */}
-          {/* {userRoles.includes("employe") && (
+          {userRoles.includes("employe") && (
           <Link
             to="/dashboard/employe"
             className="block px-4 py-2 text-gray-700 hover:bg-gray-100"
           >
             🏢 Espace Employé
           </Link>
-        )} */}
+          )}
 
           {/* ADMIN - utilise administrateur */}
           {userRoles.includes("administrateur") && (

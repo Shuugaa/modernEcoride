@@ -30,7 +30,7 @@ app.use(cors({
 
 // Routes
 app.use("/auth", authRoutes);
-app.use("/trajets", trajetRoutes);
+app.use("/conducteur/trajets", trajetRoutes);
 app.use("/reservations", reservationRoutes);
 app.use("/credits", creditRoutes);
 app.use("/api/vehicules", vehiculeRoutes);

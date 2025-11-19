@@ -17,6 +17,10 @@ import About from "./pages/About";
 // Dashboard container pro
 import DashboardMain from "./pages/dashboard/DashboardMain";
 
+// Modules pro
+import AdminModule from "./pages/dashboard/admin/AdminModule";
+import EmployeModule from "./pages/dashboard/employe/EmployeModule";
+
 // Pages conducteur
 import ConducteurIndex from "./pages/dashboard/conducteur/index";
 import MesTrajets from "./pages/dashboard/conducteur/MesTrajets";
@@ -74,6 +78,9 @@ export default function App() {
             <Route path="passager/en-cours" element={<ReservationEnCours />} />
             <Route path="passager/historique" element={<HistoriqueTrajets />} />
             <Route path="passager/recherche" element={<RechercheShortcut />} />
+
+            <Route path="admin" element={<AdminModule />} />
+            <Route path="employe" element={<EmployeModule />} />
           </Route>
 
           {/* Erreurs */}

@@ -32,7 +32,7 @@ export default function NouveauTrajet() {
         prix: Number(form.prix),
         places_disponibles: Number(form.places_disponibles),
       };
-      const res = await apiFetch("/conducteur/nouveau-trajet", {
+      const res = await apiFetch("/conducteur/trajets/add", {
         method: "POST",
         body: JSON.stringify(body),
       });

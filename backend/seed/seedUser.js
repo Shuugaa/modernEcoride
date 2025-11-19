@@ -8,14 +8,14 @@ async function seed() {
   const password = 'admin123';
   const role = 'administrateur';
 
-  const hashed = await bcrypt.hash(password, 10);
+  const hashed = await bcrypt.hash(password, 12);
 
   try {
     await pool.query(
       `INSERT INTO utilisateurs (nom, prenom, email, roles, password_hash)
        VALUES ($1, $2, $3, $4, $5)
        ON CONFLICT (email) DO NOTHING`,
-      [nom, prenom, email, [role], hashed]
+      [nom, prenom, email, JSON.stringify([role]), hashed]
     );
 
     console.log('✨ Admin user created / already exists');
