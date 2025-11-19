@@ -1,4 +1,3 @@
-// src/context/UserContext.jsx
 import { createContext, useContext, useState, useEffect } from "react";
 import { apiFetch } from "../api/apiClient";
 
@@ -8,8 +7,11 @@ export function UserProvider({ children }) {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
+  // ────────────────────────────────
+  // 1) Chargement initial /auth/me
+  // ────────────────────────────────
   useEffect(() => {
-    checkAuth(); // Vérification initiale
+    checkAuth();
   }, []);
 
   async function checkAuth(silent = false) {
@@ -17,14 +19,35 @@ export function UserProvider({ children }) {
 
     try {
       const data = await apiFetch("/auth/me");
-      setUser(data.loggedIn ? data.user : null);
-    } catch {
+
+      if (data.loggedIn) {
+        // Normalise les rôles en tableau
+        let roles = data.user.roles || [];
+
+        // Si le backend renvoie juste "passager"
+        if (typeof roles === "string") {
+          roles = [roles];
+        }
+
+        setUser({
+          ...data.user,
+          roles,
+        });
+
+      } else {
+        setUser(null);
+      }
+
+    } catch (err) {
       setUser(null);
     }
 
     if (!silent) setLoading(false);
   }
 
+  // ────────────────────────────────
+  // 2) Login
+  // ────────────────────────────────
   async function login(email, password) {
     const data = await apiFetch("/auth/login", {
       method: "POST",
@@ -35,24 +58,38 @@ export function UserProvider({ children }) {
       throw new Error(data.message || "Identifiants incorrects");
     }
 
-    // Reload complet des infos depuis /auth/me
+    // Recharge clean depuis /auth/me
     await checkAuth(true);
 
-    return user; // toujours l'utilisateur à jour
+    return true;
   }
 
+  // ────────────────────────────────
+  // 3) Logout
+  // ────────────────────────────────
   async function logout() {
     await apiFetch("/auth/logout", { method: "POST" });
     setUser(null);
   }
 
-  function hasRole(...roles) {
-    if (!user?.roles) return false;
-    return roles.some(r => user.roles.includes(r));
+  // ────────────────────────────────
+  // 4) Helper : vérifier rôle
+  // ────────────────────────────────
+  function hasRole(role) {
+    if (!user || !user.roles) return false;
+    return user.roles.includes(role);
   }
 
   return (
-    <UserContext.Provider value={{ user, setUser, loading, checkAuth, login, logout, hasRole }}>
+    <UserContext.Provider value={{
+      user,
+      loading,
+      setUser,
+      checkAuth,
+      login,
+      logout,
+      hasRole
+    }}>
       {children}
     </UserContext.Provider>
   );

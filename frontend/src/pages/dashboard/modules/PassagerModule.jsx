@@ -1,29 +1,48 @@
-// src/pages/dashboard/modules/PassagerModule.jsx
+// dashboard/modules/PassagerModule.jsx
 import { Link } from "react-router-dom";
+import { Search, Clock, TicketCheck } from "lucide-react";
 
 export default function PassagerModule() {
   return (
-    <section className="p-6 bg-white rounded-xl shadow-sm border">
-      <h2 className="text-2xl font-semibold mb-2">Espace Passager</h2>
-      <p className="text-gray-600 mb-4">
-        Réservez des trajets, suivez vos réservations et gérez vos crédits.
-      </p>
+    <div className="p-6">
+      <h2 className="text-2xl font-bold mb-6">Espace Passager</h2>
 
-      <div className="flex gap-3">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+
+        <Link
+          to="/dashboard/passager"
+          className="bg-white p-5 rounded-xl shadow hover:shadow-lg transition flex flex-col items-start"
+        >
+          <Clock size={32} className="text-blue-600 mb-3" />
+          <h3 className="font-semibold text-lg">Trajets en cours</h3>
+          <p className="text-gray-500 text-sm">
+            Consultez vos réservations actives
+          </p>
+        </Link>
+
         <Link
           to="/recherche"
-          className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg"
+          className="bg-white p-5 rounded-xl shadow hover:shadow-lg transition flex flex-col items-start"
         >
-          Rechercher un trajet 🔍
+          <Search size={32} className="text-green-600 mb-3" />
+          <h3 className="font-semibold text-lg">Rechercher un trajet</h3>
+          <p className="text-gray-500 text-sm">
+            Trouvez un conducteur pour vos déplacements
+          </p>
         </Link>
 
         <Link
-          to="/reservations"
-          className="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg"
+          to="/dashboard/passager/historique"
+          className="bg-white p-5 rounded-xl shadow hover:shadow-lg transition flex flex-col items-start"
         >
-          Mes réservations 📄
+          <TicketCheck size={32} className="text-purple-600 mb-3" />
+          <h3 className="font-semibold text-lg">Historique</h3>
+          <p className="text-gray-500 text-sm">
+            Retrouvez vos réservations passées
+          </p>
         </Link>
+
       </div>
-    </section>
+    </div>
   );
 }

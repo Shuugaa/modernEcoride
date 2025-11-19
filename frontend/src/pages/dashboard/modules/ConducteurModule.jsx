@@ -1,29 +1,48 @@
-// src/pages/dashboard/modules/ConducteurModule.jsx
+// dashboard/modules/ConducteurModule.jsx
 import { Link } from "react-router-dom";
+import { Car, PlusCircle, ClipboardList } from "lucide-react";
 
 export default function ConducteurModule() {
   return (
-    <section className="p-6 bg-white rounded-xl shadow-sm border">
-      <h2 className="text-2xl font-semibold mb-2">Espace Conducteur</h2>
-      <p className="text-gray-600 mb-4">
-        Gérez vos trajets et suivez vos réservations passagers.
-      </p>
+    <div className="p-6">
+      <h2 className="text-2xl font-bold mb-6">Espace Conducteur</h2>
 
-      <div className="flex gap-3">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+
         <Link
-          to="/trajets"
-          className="px-4 py-2 bg-green-700 hover:bg-green-800 text-white rounded-lg"
+          to="/dashboard/conducteur"
+          className="bg-white p-5 rounded-xl shadow hover:shadow-lg transition flex flex-col items-start"
         >
-          Gérer mes trajets 🚗
+          <Car size={32} className="text-blue-600 mb-3" />
+          <h3 className="font-semibold text-lg">Tableau de bord</h3>
+          <p className="text-gray-500 text-sm">
+            Aperçu rapide de vos trajets et réservations
+          </p>
         </Link>
 
         <Link
-          to="/trajets/nouveau"
-          className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg"
+          to="/dashboard/conducteur/new"
+          className="bg-white p-5 rounded-xl shadow hover:shadow-lg transition flex flex-col items-start"
         >
-          Proposer un trajet ➕
+          <PlusCircle size={32} className="text-green-600 mb-3" />
+          <h3 className="font-semibold text-lg">Nouveau trajet</h3>
+          <p className="text-gray-500 text-sm">
+            Proposer un nouveau trajet à vos passagers
+          </p>
         </Link>
+
+        <Link
+          to="/dashboard/conducteur/reservations"
+          className="bg-white p-5 rounded-xl shadow hover:shadow-lg transition flex flex-col items-start"
+        >
+          <ClipboardList size={32} className="text-orange-600 mb-3" />
+          <h3 className="font-semibold text-lg">Réservations</h3>
+          <p className="text-gray-500 text-sm">
+            Voir les réservations reçues pour vos trajets
+          </p>
+        </Link>
+
       </div>
-    </section>
+    </div>
   );
 }

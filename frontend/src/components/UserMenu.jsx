@@ -3,28 +3,35 @@ import { useUser } from "../context/UserContext";
 import { useState, useRef, useEffect } from "react";
 
 export default function UserMenu() {
-  const { user, logout, hasRole } = useUser();
+  const { user, logout } = useUser();
   const navigate = useNavigate();
+
   const [open, setOpen] = useState(false);
   const menuRef = useRef();
+
+  const userRoles = Array.isArray(user?.roles)
+    ? user.roles
+    : user?.role
+    ? [user.role]
+    : [];
 
   const handleLogout = async () => {
     await logout();
     navigate("/");
   };
 
-  // 🔒 Fermer le menu si on clique en dehors
+  // Fermer si clic en dehors
   useEffect(() => {
-    function handleClickOutside(e) {
+    function clickOutside(e) {
       if (menuRef.current && !menuRef.current.contains(e.target)) {
         setOpen(false);
       }
     }
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
+    document.addEventListener("mousedown", clickOutside);
+    return () => document.removeEventListener("mousedown", clickOutside);
   }, []);
 
-  // 🧑‍💻 Pas connecté → liens simples
+  // ---- 🔓 SI NON CONNECTÉ -------------------------
   if (!user) {
     return (
       <div className="flex gap-4 text-white">
@@ -34,10 +41,9 @@ export default function UserMenu() {
     );
   }
 
-  // 👤 Menu connecté (dropdown)
+  // ---- 🔒 SI CONNECTÉ -----------------------------
   return (
     <div className="relative" ref={menuRef}>
-      {/* Bouton avatar / nom */}
       <button
         onClick={() => setOpen(!open)}
         className="flex items-center gap-2 bg-white/20 px-4 py-2 rounded-full text-white hover:bg-white/30 transition"
@@ -45,16 +51,16 @@ export default function UserMenu() {
         👤 {user.prenom}
       </button>
 
-      {/* Menu déroulant */}
       {open && (
-        <div className="absolute right-0 mt-2 w-60 bg-white rounded-xl shadow-lg py-2 z-30 border border-gray-200">
-
-          {/* En-tête du menu */}
-          <div className="px-4 py-3 text-sm text-gray-700 border-b">
+        <div className="absolute right-0 mt-2 w-64 bg-white rounded-xl shadow-lg py-2 z-30 border">
+          
+          {/* HEADER */}
+          <div className="px-4 py-3 text-sm text-gray-800 border-b">
             <p className="font-semibold">{user.prenom} {user.nom}</p>
             <p className="text-gray-500 text-xs">{user.email}</p>
           </div>
 
+          {/* DASHBOARD */}
           <Link
             to="/dashboard"
             className="block px-4 py-2 text-gray-700 hover:bg-gray-100"
@@ -62,17 +68,16 @@ export default function UserMenu() {
             🧭 Tableau de bord
           </Link>
 
+          {/* CREDITS */}
           <div className="px-4 py-2 text-gray-700 border-b">
-            🔋 <strong>{user.credits}</strong> crédits  
-            <Link
-              to="/credits"
-              className="ml-2 text-green-700 hover:underline text-sm"
-            >
+            🔋 <strong>{user.credits}</strong> crédits
+            <Link to="/credits" className="ml-2 text-green-700 hover:underline text-sm">
               Recharger →
             </Link>
           </div>
 
-          {hasRole("passager") && (
+          {/* PASSAGER */}
+          {userRoles.includes("passager") && (
             <Link
               to="/reservations/mine"
               className="block px-4 py-2 text-gray-700 hover:bg-gray-100"
@@ -81,7 +86,8 @@ export default function UserMenu() {
             </Link>
           )}
 
-          {hasRole("conducteur") && (
+          {/* CONDUCTEUR */}
+          {userRoles.includes("conducteur") && (
             <Link
               to="/trajets"
               className="block px-4 py-2 text-gray-700 hover:bg-gray-100"
@@ -90,24 +96,27 @@ export default function UserMenu() {
             </Link>
           )}
 
-          {hasRole("employe") && (
+          {/* EMPLOYÉ */}
+          {userRoles.includes("employe") && (
             <Link
-              to="/employe/dashboard"
+              to="/dashboard/employe"
               className="block px-4 py-2 text-gray-700 hover:bg-gray-100"
             >
               🏢 Espace Employé
             </Link>
           )}
 
-          {hasRole("admin") && (
+          {/* ADMIN */}
+          {userRoles.includes("admin") && (
             <Link
-              to="/admin"
+              to="/dashboard/admin"
               className="block px-4 py-2 text-gray-700 hover:bg-gray-100"
             >
               🛠️ Administration
             </Link>
           )}
 
+          {/* LOGOUT */}
           <button
             onClick={handleLogout}
             className="w-full text-left px-4 py-2 text-red-600 hover:bg-red-50"

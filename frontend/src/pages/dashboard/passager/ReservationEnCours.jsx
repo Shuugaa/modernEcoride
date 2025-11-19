@@ -1,67 +1,44 @@
+// frontend/src/pages/dashboard/passager/ReservationEnCours.jsx
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
-import { apiFetch } from "../../../api/apiClient";
+import apiFetch from "../../../api/apiClient";
 
-export default function ReservationsEnCours() {
-  const [reservations, setReservations] = useState([]);
+export default function ReservationEnCours() {
+  const [resv, setResv] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  useEffect(() => load(), []);
-
-  async function load() {
-    setLoading(true);
-    const res = await apiFetch("/passager/reservations");
-    if (res.success) setReservations(res.data);
-    setLoading(false);
-  }
-
-  async function annulerReservation(id) {
-    if (!confirm("Annuler cette réservation ?")) return;
-
-    const res = await apiFetch(`/passager/reservations/${id}`, {
-      method: "DELETE",
-    });
-
-    if (res.success) {
-      setReservations((prev) => prev.filter(r => r.id !== id));
-    } else {
-      alert(res.message);
+  useEffect(() => {
+    let mounted = true;
+    async function load() {
+      setLoading(true);
+      setError(null);
+      try {
+        const r = await apiFetch("/passager/reservation-active");
+        const data = r?.data ?? r?.reservation ?? r;
+        if (mounted) setResv(data || null);
+      } catch (err) {
+        if (mounted) setError(err.message || "Erreur");
+      } finally {
+        if (mounted) setLoading(false);
+      }
     }
-  }
+    load();
+    return () => (mounted = false);
+  }, []);
 
-  if (loading) return <p>Chargement...</p>;
-
-  if (reservations.length === 0)
-    return <p className="text-gray-500">Aucune réservation en cours.</p>;
+  if (loading) return <p className="p-6 text-gray-500">Chargement…</p>;
+  if (error) return <p className="p-6 text-red-500">{error}</p>;
+  if (!resv) return <p className="p-6 text-gray-500">Aucune réservation en cours.</p>;
 
   return (
-    <div className="space-y-4">
-      {reservations.map(r => (
-        <div key={r.id} className="p-4 bg-white shadow border rounded">
-          <p className="font-semibold">{r.depart} → {r.arrivee}</p>
-          <p className="text-gray-600">
-            Départ : {new Date(r.date_depart).toLocaleString()}
-          </p>
-          <p>Places : <strong>{r.places}</strong></p>
-          <p>Montant : <strong>{r.montant} crédits</strong></p>
+    <div className="p-6">
+      <h2 className="text-2xl font-bold mb-4">Réservation en cours</h2>
 
-          <div className="mt-3 flex gap-3">
-            <Link
-              to={`/trajets/details/${r.trajet_id}`}
-              className="px-3 py-1 bg-blue-600 text-white rounded"
-            >
-              Détails
-            </Link>
-
-            <button
-              onClick={() => annulerReservation(r.id)}
-              className="px-3 py-1 bg-red-600 text-white rounded"
-            >
-              Annuler
-            </button>
-          </div>
-        </div>
-      ))}
+      <div className="bg-white p-4 rounded shadow">
+        <div className="font-semibold">{resv.ville_depart} → {resv.ville_arrivee}</div>
+        <div className="text-sm text-gray-500">Le {new Date(resv.date).toLocaleString()}</div>
+        <div className="mt-2">Conducteur : {resv.conducteur_prenom} {resv.conducteur_nom}</div>
+      </div>
     </div>
   );
 }

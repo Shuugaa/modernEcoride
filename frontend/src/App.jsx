@@ -1,140 +1,85 @@
 // src/App.jsx
 import { Routes, Route } from "react-router-dom";
 
+import { UserProvider } from "./context/UserContext";
+import PrivateRoute from "./components/PrivateRoute";
+import DashboardRedirect from "./components/DashboardRedirect";
+
 import Layout from "./layouts/Layout";
 
+// Pages publiques
 import Home from "./pages/Home";
-import Recherche from "./pages/Recherche";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
-import About from "./pages/About";
 
-import Trajets from "./pages/Trajets";
-import TrajetsAdd from "./pages/TrajetsAdd";
-import TrajetsList from "./pages/TrajetsList";
-import TrajetsDetails from "./pages/TrajetsDetails";
+// Dashboard container pro
+import DashboardMain from "./pages/dashboard/DashboardMain";
 
-import Reservations from "./pages/Reservations";
-import RechargeCredits from "./pages/RechargeCredits";
+// Pages conducteur
+import ConducteurIndex from "./pages/dashboard/conducteur/index";
+import MesTrajets from "./pages/dashboard/conducteur/MesTrajets";
+import NouveauTrajet from "./pages/dashboard/conducteur/NouveauTrajet";
+import TrajetsReservations from "./pages/dashboard/conducteur/TrajetsReservations";
 
-import DashboardRedirect from "./components/DashboardRedirect";
-import PrivateRoute from "./components/PrivateRoute";
+// Pages passager
+import PassagerIndex from "./pages/dashboard/passager/index";
+import HistoriqueTrajets from "./pages/dashboard/passager/HistoriqueTrajets";
+import ReservationEnCours from "./pages/dashboard/passager/ReservationEnCours";
+import RechercheShortcut from "./pages/dashboard/passager/RechercheShortcut";
 
-// (bientôt) pages dashboards internes
-// import AdminModule from "./pages/dashboard/AdminModule";
-// import EmployeModule from "./pages/dashboard/EmployeModule";
+import Unauthorized from "./pages/Unauthorized";
+import NotFound from "./pages/NotFound";
 
 export default function App() {
   return (
-    <Routes>
-      <Route element={<Layout />}>
+    <UserProvider>
+      <Routes>
 
-        {/* --- PUBLIC --- */}
-        <Route path="/" element={<Home />} />
-        <Route path="/recherche" element={<Recherche />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
-        <Route path="/about" element={<About />} />
+        <Route element={<Layout />}>
 
-        {/* --- DASHBOARD UNIQUE (redirige selon les rôles) --- */}
-        <Route
-          path="/dashboard"
-          element={
-            <PrivateRoute>
-              <DashboardRedirect />
-            </PrivateRoute>
-          }
-        />
+          {/* Public */}
+          <Route path="/" element={<Home />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
 
-        {/* --- TRAJETS --- */}
-        <Route
-          path="/trajets"
-          element={
-            <PrivateRoute role="conducteur">
-              <Trajets />
-            </PrivateRoute>
-          }
-        />
+          {/* Redirection role → dashboard */}
+          <Route
+            path="/dashboard"
+            element={
+              <PrivateRoute>
+                <DashboardRedirect />
+              </PrivateRoute>
+            }
+          />
 
-        <Route
-          path="/trajets/new"
-          element={
-            <PrivateRoute role="conducteur">
-              <TrajetsAdd />
-            </PrivateRoute>
-          }
-        />
+          {/* Dashboard global module */}
+          <Route
+            path="/dashboard/*"
+            element={
+              <PrivateRoute>
+                <DashboardMain />
+              </PrivateRoute>
+            }
+          />
 
-        <Route
-          path="/trajets/list"
-          element={
-            <PrivateRoute role="conducteur">
-              <TrajetsList />
-            </PrivateRoute>
-          }
-        />
+          {/* Conducteur */}
+          <Route path="/dashboard/conducteur" element={<ConducteurIndex />} />
+          <Route path="/dashboard/conducteur/mes-trajets" element={<MesTrajets />} />
+          <Route path="/dashboard/conducteur/nouveau" element={<NouveauTrajet />} />
+          <Route path="/dashboard/conducteur/reservations" element={<TrajetsReservations />} />
 
-        <Route
-          path="/trajets/details/:trajetId"
-          element={
-            <PrivateRoute>
-              <TrajetsDetails />
-            </PrivateRoute>
-          }
-        />
+          {/* Passager */}
+          <Route path="/dashboard/passager" element={<PassagerIndex />} />
+          <Route path="/dashboard/passager/en-cours" element={<ReservationEnCours />} />
+          <Route path="/dashboard/passager/historique" element={<HistoriqueTrajets />} />
+          <Route path="/dashboard/passager/recherche" element={<RechercheShortcut />} />
 
-        {/* --- RÉSERVATIONS --- */}
-        <Route
-          path="/reservations/:trajetId"
-          element={
-            <PrivateRoute role="passager">
-              <Reservations />
-            </PrivateRoute>
-          }
-        />
+          {/* Erreurs */}
+          <Route path="/unauthorized" element={<Unauthorized />} />
+          <Route path="*" element={<NotFound />} />
+        </Route>
 
-        {/* --- PAGE "mes réservations" → dashboard passager --- */}
-        <Route
-          path="/reservations/mine"
-          element={
-            <PrivateRoute role="passager">
-              <DashboardRedirect />
-            </PrivateRoute>
-          }
-        />
-
-
-        {/* Conducteur */}
-        <Route
-          path="/dashboard/conducteur"
-          element={<PrivateRoute role="conducteur"><DashboardConducteur /></PrivateRoute>}
-        />
-        <Route
-          path="/dashboard/conducteur/mes-trajets"
-          element={<PrivateRoute role="conducteur"><MesTrajets /></PrivateRoute>}
-        />
-        <Route
-          path="/dashboard/conducteur/nouveau"
-          element={<PrivateRoute role="conducteur"><NouveauTrajet /></PrivateRoute>}
-        />
-
-        {/* Passager */}
-        <Route
-          path="/dashboard/passager"
-          element={<PrivateRoute role="passager"><DashboardPassager /></PrivateRoute>}
-        />
-
-        {/* --- CREDITS --- */}
-        <Route
-          path="/credits"
-          element={
-            <PrivateRoute>
-              <RechargeCredits />
-            </PrivateRoute>
-          }
-        />
-
-      </Route>
-    </Routes>
+      </Routes>
+    </UserProvider>
   );
 }

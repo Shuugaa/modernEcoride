@@ -3,36 +3,28 @@ import { Link } from "react-router-dom";
 
 export default function EmployeModule() {
   return (
-    <section className="p-6 bg-white rounded-xl shadow-sm border">
-      <h2 className="text-2xl font-semibold mb-2">Espace Employé</h2>
-      <p className="text-gray-600 mb-4">
-        Outils internes pour la vérification, le support et la gestion des
-        utilisateurs.
-      </p>
+    <div className="p-6">
+      <h1 className="text-3xl font-bold mb-4">🏢 Tableau de bord — Employé</h1>
 
-      <div className="flex flex-col gap-3">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
 
         <Link
-          to="/staff/support"
-          className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg"
+          to="/employe/monitoring"
+          className="p-6 bg-white rounded-xl shadow hover:shadow-lg transition"
         >
-          Support & Tickets 🎧
+          <h2 className="text-xl font-semibold mb-2">📊 Monitoring</h2>
+          <p>Statistiques, trajets actifs, activité en temps réel.</p>
         </Link>
 
         <Link
-          to="/staff/users"
-          className="px-4 py-2 bg-indigo-500 hover:bg-indigo-600 text-white rounded-lg"
+          to="/employe/support"
+          className="p-6 bg-white rounded-xl shadow hover:shadow-lg transition"
         >
-          Gestion des utilisateurs 👥
+          <h2 className="text-xl font-semibold mb-2">💬 Support</h2>
+          <p>Accédez aux demandes des utilisateurs.</p>
         </Link>
 
-        <Link
-          to="/staff/trajets"
-          className="px-4 py-2 bg-indigo-400 hover:bg-indigo-500 text-white rounded-lg"
-        >
-          Vérification des trajets 📝
-        </Link>
       </div>
-    </section>
+    </div>
   );
 }

@@ -3,43 +3,36 @@ import { Link } from "react-router-dom";
 
 export default function AdminModule() {
   return (
-    <section className="p-6 bg-white rounded-xl shadow-sm border">
-      <h2 className="text-2xl font-semibold mb-2">Espace Administrateur</h2>
-      <p className="text-gray-600 mb-4">
-        Supervisez l’ensemble du système : utilisateurs, paiements, trajets, logs.
-      </p>
+    <div className="p-6">
+      <h1 className="text-3xl font-bold mb-4">🛠️ Administration</h1>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
 
         <Link
           to="/admin/users"
-          className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg text-center"
+          className="p-6 bg-white rounded-xl shadow hover:shadow-lg transition"
         >
-          Gestion des utilisateurs 👥
+          <h2 className="text-xl font-semibold mb-2">👥 Gestion des utilisateurs</h2>
+          <p>Rôles, permissions, bannissements, etc.</p>
         </Link>
 
         <Link
           to="/admin/trajets"
-          className="px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg text-center"
+          className="p-6 bg-white rounded-xl shadow hover:shadow-lg transition"
         >
-          Gestion des trajets 🚗
+          <h2 className="text-xl font-semibold mb-2">🚗 Trajets</h2>
+          <p>Supervision complète des trajets déclarés.</p>
         </Link>
 
         <Link
-          to="/admin/credits"
-          className="px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg text-center"
+          to="/admin/statistiques"
+          className="p-6 bg-white rounded-xl shadow hover:shadow-lg transition"
         >
-          Gestion des crédits 💳
-        </Link>
-
-        <Link
-          to="/admin/logs"
-          className="px-4 py-2 bg-red-400 hover:bg-red-500 text-white rounded-lg text-center"
-        >
-          Logs & Sécurité 🔐
+          <h2 className="text-xl font-semibold mb-2">📈 Statistiques</h2>
+          <p>Vue globale de l’activité.</p>
         </Link>
 
       </div>
-    </section>
+    </div>
   );
 }

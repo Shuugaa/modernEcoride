@@ -11,11 +11,10 @@ export default function Login() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
 
-  // Si déjà connecté
+  // 👉 Si déjà connecté : redirection automatique
   useEffect(() => {
     if (user) {
-      if (user.role === "conducteur") nav("/dashboard/conducteur");
-      else nav("/dashboard/passager");
+      nav("/dashboard");
     }
   }, [user]);
 
@@ -24,13 +23,8 @@ export default function Login() {
     setError("");
 
     try {
-      const loggedUser = await login(email, password);
-
-      if (loggedUser.role === "conducteur") {
-        nav("/dashboard/conducteur");
-      } else {
-        nav("/dashboard/passager");
-      }
+      await login(email, password);  // login mettra user à jour
+      nav("/dashboard");             // redirection universelle
     } catch (err) {
       setError(err.message);
     }
