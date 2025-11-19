@@ -13,27 +13,21 @@ export default function Register() {
   const [role, setRole] = useState("passager");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const { register: registerUser } = useUser();
 
   const register = async (e) => {
     e.preventDefault();
     setError("");
 
-    let rolesToSend = role === "both" ? ["passager", "conducteur"] : [role];
+    try {
+      let rolesToSend = role === "both" ? ["passager", "conducteur"] : [role];
 
-    const data = await apiFetch("/auth/register", {
-      method: "POST",
-      credentials: "include",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ nom, prenom, email, password, roles: rolesToSend }),
-    });
+      await registerUser({ nom, prenom, email, password, roles: rolesToSend });
 
-    if (!data.success) {
-      setError(data.message || "Erreur lors de l’inscription.");
-      return;
+      nav("/dashboard");
+    } catch (err) {
+      setError(err.message);
     }
-
-    setUser(data.user);
-    nav("/dashboard");
   };
 
   return (

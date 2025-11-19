@@ -8,7 +8,7 @@ CREATE TABLE IF NOT EXISTS utilisateurs (
   prenom VARCHAR(100) NOT NULL,
   email VARCHAR(255) UNIQUE NOT NULL,
   password_hash VARCHAR(255) NOT NULL,
-  roles TEXT[] DEFAULT ARRAY['passager'],
+  roles JSONB DEFAULT '["passager"]',
   created_at TIMESTAMP DEFAULT now(),
   credits NUMERIC(8,2) DEFAULT 100
 );
