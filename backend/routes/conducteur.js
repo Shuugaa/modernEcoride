@@ -43,7 +43,7 @@ router.get("/mes-trajets", auth, requireConducteur, async (req, res) => {
     const { rows } = await pool.query(
       `SELECT t.*, COUNT(r.id) as nb_reservations
        FROM trajets t
-       LEFT JOIN reservations r ON t.id = r.trajet_id AND r.status = 'confirmee'
+       LEFT JOIN reservations r ON t.id = r.trajet_id AND r.statut = 'confirmee'
        WHERE t.conducteur_id = $1
        GROUP BY t.id
        ORDER BY t.date_depart DESC`,
@@ -86,7 +86,7 @@ router.get("/reservations", auth, requireConducteur, async (req, res) => {
 
 // Accepter/Refuser une réservation
 router.put("/reservations/:id/status", auth, requireConducteur, async (req, res) => {
-  const { status } = req.body; // "confirmee" ou "refusee"
+  const { statut } = req.body; // "confirmee" ou "refusee"
   
   try {
     // Vérifier que la réservation appartient à un trajet du conducteur
@@ -105,13 +105,13 @@ router.put("/reservations/:id/status", auth, requireConducteur, async (req, res)
     }
 
     await pool.query(
-      "UPDATE reservations SET status = $1 WHERE id = $2",
-      [status, req.params.id]
+      "UPDATE reservations SET statut = $1 WHERE id = $2",
+      [statut, req.params.id]
     );
 
     res.json({ 
       success: true, 
-      message: `Réservation ${status === 'confirmee' ? 'acceptée' : 'refusée'}` 
+      message: `Réservation ${statut === 'confirmee' ? 'acceptée' : 'refusée'}` 
     });
   } catch (err) {
     console.error("Erreur update réservation:", err);
@@ -126,7 +126,7 @@ router.get("/stats", auth, requireConducteur, async (req, res) => {
       `SELECT 
          COUNT(DISTINCT t.id) as nb_trajets,
          COUNT(DISTINCT r.id) as nb_reservations,
-         COALESCE(SUM(CASE WHEN r.status = 'confirmee' THEN t.prix ELSE 0 END), 0) as revenus_total
+         COALESCE(SUM(CASE WHEN r.statut = 'confirmee' THEN t.prix ELSE 0 END), 0) as revenus_total
        FROM trajets t
        LEFT JOIN reservations r ON t.id = r.trajet_id
        WHERE t.conducteur_id = $1`,
