@@ -50,8 +50,8 @@ router.get("/search", async (req, res) => {
     if (SearchLog) {
       await SearchLog.create({
         userId: req.session?.user?.id || null,
-        depart,
-        arrivee,
+        depart: depart,
+        arrivee: arrivee,
         dateMin: dateMin ? new Date(dateMin) : null,
         dateMax: dateMax ? new Date(dateMax) : null,
       });

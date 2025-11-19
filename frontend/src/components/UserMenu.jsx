@@ -1,67 +1,121 @@
-// src/components/UserMenu.jsx
 import { Link, useNavigate } from "react-router-dom";
 import { useUser } from "../context/UserContext";
+import { useState, useRef, useEffect } from "react";
 
 export default function UserMenu() {
-  const { user, logout } = useUser();
+  const { user, logout, hasRole } = useUser();
   const navigate = useNavigate();
+  const [open, setOpen] = useState(false);
+  const menuRef = useRef();
 
   const handleLogout = async () => {
     await logout();
     navigate("/");
   };
 
-  // Pas connecté → menu simple
+  // 🔒 Fermer le menu si on clique en dehors
+  useEffect(() => {
+    function handleClickOutside(e) {
+      if (menuRef.current && !menuRef.current.contains(e.target)) {
+        setOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  // 🧑‍💻 Pas connecté → liens simples
   if (!user) {
     return (
       <div className="flex gap-4 text-white">
-        <Link className="hover:text-green-200" to="/login">
-          Connexion
-        </Link>
-        <Link className="hover:text-green-200" to="/register">
-          Inscription
-        </Link>
+        <Link className="hover:text-green-200" to="/login">Connexion</Link>
+        <Link className="hover:text-green-200" to="/register">Inscription</Link>
       </div>
     );
   }
 
-  // Connecté → menu utilisateur
+  // 👤 Menu connecté (dropdown)
   return (
-    <div className="flex items-center gap-4 text-white">
-
-      <span className="bg-white/20 px-3 py-1 rounded-full text-sm backdrop-blur-sm">
-        Bonjour {user.prenom}
-      </span>
-
-      <span className="bg-green-700 px-3 py-1 rounded-full text-sm flex items-center gap-2">
-        🔋 {user.credits} crédits
-
-        {/* Lien vers la page de recharge */}
-        <Link
-          to="/credits"
-          className="bg-white/20 hover:bg-white/30 px-2 py-0.5 rounded text-xs"
-          title="Recharger mes crédits"
-        >
-          ➕
-        </Link>
-      </span>
-
-      <span>
-        <Link
-          to="/trajets"
-          className="bg-white/20 hover:bg-white/30 px-2 py-0.5 rounded text-xs"
-          title="Mes trajets"
-        >
-          🚗
-        </Link>
-      </span>
-
+    <div className="relative" ref={menuRef}>
+      {/* Bouton avatar / nom */}
       <button
-        onClick={handleLogout}
-        className="bg-white/20 hover:bg-white/30 px-3 py-1 rounded transition"
+        onClick={() => setOpen(!open)}
+        className="flex items-center gap-2 bg-white/20 px-4 py-2 rounded-full text-white hover:bg-white/30 transition"
       >
-        Déconnexion
+        👤 {user.prenom}
       </button>
+
+      {/* Menu déroulant */}
+      {open && (
+        <div className="absolute right-0 mt-2 w-60 bg-white rounded-xl shadow-lg py-2 z-30 border border-gray-200">
+
+          {/* En-tête du menu */}
+          <div className="px-4 py-3 text-sm text-gray-700 border-b">
+            <p className="font-semibold">{user.prenom} {user.nom}</p>
+            <p className="text-gray-500 text-xs">{user.email}</p>
+          </div>
+
+          <Link
+            to="/dashboard"
+            className="block px-4 py-2 text-gray-700 hover:bg-gray-100"
+          >
+            🧭 Tableau de bord
+          </Link>
+
+          <div className="px-4 py-2 text-gray-700 border-b">
+            🔋 <strong>{user.credits}</strong> crédits  
+            <Link
+              to="/credits"
+              className="ml-2 text-green-700 hover:underline text-sm"
+            >
+              Recharger →
+            </Link>
+          </div>
+
+          {hasRole("passager") && (
+            <Link
+              to="/reservations/mine"
+              className="block px-4 py-2 text-gray-700 hover:bg-gray-100"
+            >
+              🎒 Mes réservations
+            </Link>
+          )}
+
+          {hasRole("conducteur") && (
+            <Link
+              to="/trajets"
+              className="block px-4 py-2 text-gray-700 hover:bg-gray-100"
+            >
+              🚗 Gestion des trajets
+            </Link>
+          )}
+
+          {hasRole("employe") && (
+            <Link
+              to="/employe/dashboard"
+              className="block px-4 py-2 text-gray-700 hover:bg-gray-100"
+            >
+              🏢 Espace Employé
+            </Link>
+          )}
+
+          {hasRole("admin") && (
+            <Link
+              to="/admin"
+              className="block px-4 py-2 text-gray-700 hover:bg-gray-100"
+            >
+              🛠️ Administration
+            </Link>
+          )}
+
+          <button
+            onClick={handleLogout}
+            className="w-full text-left px-4 py-2 text-red-600 hover:bg-red-50"
+          >
+            🚪 Déconnexion
+          </button>
+        </div>
+      )}
     </div>
   );
 }

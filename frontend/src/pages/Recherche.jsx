@@ -45,8 +45,11 @@ export default function Recherche() {
         {trajets.map((t) => (
           <div key={t.id} className="border p-3 rounded mb-3 shadow">
             <p><strong>{t.depart} → {t.arrivee}</strong></p>
-            <p>Date : {t.date}</p>
-            <p>Conducteur : {t.conducteur}</p>
+            <p>Date : {new Date(t.date_depart).toLocaleDateString()}</p>
+            <p>Conducteur : {t.conducteur_id}</p>
+            <p>Places disponibles : {t.places_disponibles}</p>
+            <p>Prix : {t.prix} €</p>
+            <a href={`/reservations/${t.id}`} className="text-blue-600 underline">Voir les détails</a>
           </div>
         ))}
       </div>

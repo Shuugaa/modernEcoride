@@ -46,8 +46,13 @@ export function UserProvider({ children }) {
     setUser(null);
   }
 
+  function hasRole(...roles) {
+    if (!user?.roles) return false;
+    return roles.some(r => user.roles.includes(r));
+  }
+
   return (
-    <UserContext.Provider value={{ user, setUser, loading, checkAuth, login, logout }}>
+    <UserContext.Provider value={{ user, setUser, loading, checkAuth, login, logout, hasRole }}>
       {children}
     </UserContext.Provider>
   );

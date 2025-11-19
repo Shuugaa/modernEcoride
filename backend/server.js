@@ -14,6 +14,8 @@ const trajetsRoutes = require("./routes/trajets");
 const roleRoutes = require("./routes/roles");
 const reservationRoutes = require("./routes/reservation");
 const creditsRoutes = require("./routes/credits");
+const passagerRoutes = require("./routes/passager");
+const conducteurRoutes = require("./routes/conducteur");
 
 require("dotenv").config();
 
@@ -51,6 +53,10 @@ app.use("/trajets", trajetsRoutes);
 app.use("/roles", roleRoutes);
 app.use("/reservation", reservationRoutes);
 app.use("/credits", creditsRoutes);
+app.use("/passager", passagerRoutes);
+app.use("/conducteur", conducteurRoutes);
+
+
 
 app.get("/api/health", (req, res) => {
   res.json({ status: "ok", time: new Date() });
