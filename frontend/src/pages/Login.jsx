@@ -56,6 +56,9 @@ export default function Login() {
         <button className="bg-green-600 text-white py-2 rounded">
           Se connecter
         </button>
+        <a href="/register" className="text-center text-sm text-gray-600 hover:underline">
+          Pas encore de compte ? Inscrivez-vous
+        </a>
       </form>
     </div>
   );

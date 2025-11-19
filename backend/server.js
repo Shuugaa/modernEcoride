@@ -38,15 +38,21 @@ app.use("/admin", adminRoutes);
 app.use("/employe", employeRoutes);
 
 // Vérifier PostgreSQL avant de lancer
-async function ensurePostgres() {
-  try {
-    await pool.query("SELECT NOW()");
-    console.log("PostgreSQL connecté");
-  } catch (err) {
-    console.error("Erreur PostgreSQL :", err);
-    process.exit(1);
+async function ensurePostgres(retries = 10) {
+  while (retries > 0) {
+    try {
+      await pool.query("SELECT NOW()");
+      console.log("PostgreSQL connecté");
+      return;
+    } catch (err) {
+      console.log("Postgres pas prêt, retry...");
+      retries--;
+      await new Promise(res => setTimeout(res, 2000));
+    }
   }
+  throw new Error("Impossible de se connecter à PostgreSQL");
 }
+
 
 // health
 app.get("/", (req, res) => res.json({ success: true, message: "Backend OK" }));
