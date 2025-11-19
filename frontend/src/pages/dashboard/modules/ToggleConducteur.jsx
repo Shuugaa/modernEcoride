@@ -1,13 +1,29 @@
 import { useState } from "react";
-import { apiFetch } from "../api/apiClient";
-import { useUser } from "../context/UserContext";
+import { apiFetch } from "../../../api/apiClient";
+import { useUser } from "../../../context/UserContext";
 
 export default function ToggleConducteur() {
   const { user, setUser } = useUser();
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
 
-  const isConducteur = user?.roles?.includes("conducteur");
+  // DEBUG - Voir ce qu'on reçoit
+  console.log('🔍 User complet:', user);
+  console.log('🔍 user.role:', user?.role);
+  console.log('🔍 user.roles:', user?.roles);
+  console.log('🔍 type roles:', typeof user?.roles);
+
+  // Logique plus robuste
+  const isConducteur = (() => {
+    if (user?.roles && Array.isArray(user.roles)) {
+      return user.roles.includes("conducteur");
+    } else if (user?.role) {
+      return user.role === "conducteur";
+    }
+    return false;
+  })();
+
+  console.log('🔍 isConducteur:', isConducteur);
 
   const handleToggle = async () => {
     setLoading(true);

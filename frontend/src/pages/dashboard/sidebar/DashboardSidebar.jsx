@@ -1,6 +1,7 @@
 // frontend/src/pages/dashboard/sidebar/DashboardSidebar.jsx
 import { Link } from "react-router-dom";
 import { useUser } from "../../../context/UserContext";
+import ToggleConducteur from "../modules/ToggleConducteur";
 
 export default function DashboardSidebar() {
   const { user, hasRole } = useUser();
@@ -13,7 +14,7 @@ export default function DashboardSidebar() {
         {/* header */}
         <div className="flex items-center gap-3 mb-4">
           {/* image preview using your uploaded file */}
-          <img src="/mnt/data/1e21c4ee-f58f-4f85-b52f-e98ab62f2dce.png" alt="logo" className="w-12 h-12 rounded-full object-cover" />
+          <img src="logo.png" alt="logo" className="w-12 h-12 rounded-full object-cover" />
           <div>
             <div className="font-semibold">{user?.prenom ?? "Utilisateur"}</div>
             <div className="text-xs text-gray-500">{user?.email ?? "—"}</div>
@@ -25,6 +26,10 @@ export default function DashboardSidebar() {
           <div className="text-sm text-gray-600">Crédits</div>
           <div className="font-bold">{user?.credits ?? 0} ⚡</div>
           <Link to="/dashboard/recharge-credits" className="text-xs text-green-600 hover:underline">Recharger</Link>
+        </div>
+
+        <div className="mb-4">
+          <ToggleConducteur />
         </div>
 
         {/* nav */}
@@ -66,10 +71,10 @@ export default function DashboardSidebar() {
           )}
 
           <Link
-                to="/dashboard/recharge-credits"
-                className="flex items-center gap-3 px-3 py-2 text-gray-700 hover:bg-gray-100 rounded-lg"
-              >
-                💰 Recharger crédits
+            to="/dashboard/recharge-credits"
+            className="flex items-center gap-3 px-3 py-2 text-gray-700 hover:bg-gray-100 rounded-lg"
+          >
+            💰 Recharger crédits
           </Link>
         </nav>
       </div>
