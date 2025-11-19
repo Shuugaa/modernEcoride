@@ -1,4 +1,3 @@
-// src/App.jsx
 import { Routes, Route } from "react-router-dom";
 
 import { UserProvider } from "./context/UserContext";
@@ -17,9 +16,11 @@ import About from "./pages/About";
 // Dashboard container pro
 import DashboardMain from "./pages/dashboard/DashboardMain";
 
-// Modules pro
+// Modules Admin
 import AdminModule from "./pages/dashboard/admin/AdminModule";
-import EmployeModule from "./pages/dashboard/employe/EmployeModule";
+import AdminUsers from "./pages/dashboard/admin/Users";
+import AdminStats from "./pages/dashboard/admin/Stats";
+import CreateEmployee from "./pages/dashboard/admin/CreateEmployee";
 
 // Pages conducteur
 import ConducteurIndex from "./pages/dashboard/conducteur/index";
@@ -28,7 +29,6 @@ import NouveauTrajet from "./pages/dashboard/conducteur/NouveauTrajet";
 import TrajetsReservations from "./pages/dashboard/conducteur/TrajetsReservations";
 
 // Pages passager
-import PassagerIndex from "./pages/dashboard/passager/index";
 import HistoriqueTrajets from "./pages/dashboard/passager/HistoriqueTrajets";
 import ReservationEnCours from "./pages/dashboard/passager/ReservationEnCours";
 import RechercheShortcut from "./pages/dashboard/passager/RechercheShortcut";
@@ -74,13 +74,16 @@ export default function App() {
             <Route path="conducteur/nouveau" element={<NouveauTrajet />} />
             <Route path="conducteur/reservations" element={<TrajetsReservations />} />
 
-            <Route path="passager" element={<PassagerIndex />} />
+            {/* Routes passager existantes */}
             <Route path="passager/en-cours" element={<ReservationEnCours />} />
             <Route path="passager/historique" element={<HistoriqueTrajets />} />
             <Route path="passager/recherche" element={<RechercheShortcut />} />
 
+            {/* Routes admin */}
             <Route path="admin" element={<AdminModule />} />
-            <Route path="employe" element={<EmployeModule />} />
+            <Route path="admin/users" element={<AdminUsers />} />
+            <Route path="admin/stats" element={<AdminStats />} />
+            <Route path="admin/create-employee" element={<CreateEmployee />} />
           </Route>
 
           {/* Erreurs */}

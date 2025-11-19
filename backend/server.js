@@ -15,6 +15,9 @@ const creditRoutes = require("./routes/credits");
 const vehiculeRoutes = require("./routes/vehicule");
 const adminRoutes = require("./routes/admin");
 const employeRoutes = require("./routes/employe");
+const conducteurRoutes = require("./routes/conducteur");  // Pour les APIs conducteur
+const passagerRoutes = require("./routes/passager");      // Pour les APIs passager  
+const userRoutes = require("./routes/user");              // Pour become-conducteur
 
 const app = express();
 
@@ -30,12 +33,15 @@ app.use(cors({
 
 // Routes
 app.use("/auth", authRoutes);
-app.use("/conducteur/trajets", trajetRoutes);
 app.use("/reservations", reservationRoutes);
 app.use("/credits", creditRoutes);
 app.use("/api/vehicules", vehiculeRoutes);
 app.use("/admin", adminRoutes);
 app.use("/employe", employeRoutes);
+app.use("/trajets", trajetRoutes);  // Pour recherche, détails publics, etc.
+app.use("/conducteur", conducteurRoutes);    // /conducteur/mes-trajets, /conducteur/nouveau-trajet, etc.
+app.use("/passager", passagerRoutes);        // /passager/recherche, /passager/reservations, etc.
+app.use("/user", userRoutes);                // /user/become-conducteur
 
 // Vérifier PostgreSQL avant de lancer
 async function ensurePostgres(retries = 10) {
