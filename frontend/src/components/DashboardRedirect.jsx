@@ -9,7 +9,7 @@ export default function DashboardRedirect() {
 
   // Priorité des rôles (1 = plus prioritaire)
   const ROLE_PRIORITY = [
-    "admin",
+    "administrateur",
     "employe",
     "conducteur",
     "passager",
@@ -17,7 +17,7 @@ export default function DashboardRedirect() {
 
   // Tableau des routes liées au rôle
   const ROUTES = {
-    admin: "/dashboard/admin",
+    administrateur: "/dashboard/admin",
     employe: "/dashboard/employe",
     conducteur: "/dashboard/conducteur",
     passager: "/dashboard/passager",

@@ -36,7 +36,6 @@ export default function App() {
   return (
     <UserProvider>
       <Routes>
-
         <Route element={<Layout />}>
 
           {/* Public */}
@@ -56,27 +55,26 @@ export default function App() {
             }
           />
 
-          {/* Dashboard global module */}
-          <Route
-            path="/dashboard/*"
+          {/* Dashboard avec layout */}
+          <Route 
+            path="/dashboard" 
             element={
               <PrivateRoute>
                 <DashboardMain />
               </PrivateRoute>
             }
-          />
+          >
+            {/* Routes enfants du dashboard */}
+            <Route path="conducteur" element={<ConducteurIndex />} />
+            <Route path="conducteur/mes-trajets" element={<MesTrajets />} />
+            <Route path="conducteur/nouveau" element={<NouveauTrajet />} />
+            <Route path="conducteur/reservations" element={<TrajetsReservations />} />
 
-          {/* Conducteur */}
-          <Route path="/dashboard/conducteur" element={<ConducteurIndex />} />
-          <Route path="/dashboard/conducteur/mes-trajets" element={<MesTrajets />} />
-          <Route path="/dashboard/conducteur/nouveau" element={<NouveauTrajet />} />
-          <Route path="/dashboard/conducteur/reservations" element={<TrajetsReservations />} />
-
-          {/* Passager */}
-          <Route path="/dashboard/passager" element={<PassagerIndex />} />
-          <Route path="/dashboard/passager/en-cours" element={<ReservationEnCours />} />
-          <Route path="/dashboard/passager/historique" element={<HistoriqueTrajets />} />
-          <Route path="/dashboard/passager/recherche" element={<RechercheShortcut />} />
+            <Route path="passager" element={<PassagerIndex />} />
+            <Route path="passager/en-cours" element={<ReservationEnCours />} />
+            <Route path="passager/historique" element={<HistoriqueTrajets />} />
+            <Route path="passager/recherche" element={<RechercheShortcut />} />
+          </Route>
 
           {/* Erreurs */}
           <Route path="/unauthorized" element={<Unauthorized />} />
