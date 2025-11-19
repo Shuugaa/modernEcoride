@@ -12,8 +12,8 @@ export default function UserMenu() {
   const userRoles = Array.isArray(user?.roles)
     ? user.roles
     : user?.role
-    ? [user.role]
-    : [];
+      ? [user.role]
+      : [];
 
   const handleLogout = async () => {
     await logout();
@@ -53,7 +53,7 @@ export default function UserMenu() {
 
       {open && (
         <div className="absolute right-0 mt-2 w-64 bg-white rounded-xl shadow-lg py-2 z-30 border">
-          
+
           {/* HEADER */}
           <div className="px-4 py-3 text-sm text-gray-800 border-b">
             <p className="font-semibold">{user.prenom} {user.nom}</p>
@@ -68,46 +68,46 @@ export default function UserMenu() {
             🧭 Tableau de bord
           </Link>
 
-          {/* CREDITS */}
+          {/* CREDITS - à créer ou supprimer */}
           <div className="px-4 py-2 text-gray-700 border-b">
             🔋 <strong>{user.credits}</strong> crédits
-            <Link to="/credits" className="ml-2 text-green-700 hover:underline text-sm">
-              Recharger →
-            </Link>
+            {/* <Link to="/credits" className="ml-2 text-green-700 hover:underline text-sm">
+            Recharger →
+          </Link> */}
           </div>
 
-          {/* PASSAGER */}
+          {/* PASSAGER - corrigé */}
           {userRoles.includes("passager") && (
             <Link
-              to="/reservations/mine"
+              to="/dashboard/passager/historique"
               className="block px-4 py-2 text-gray-700 hover:bg-gray-100"
             >
               🎒 Mes réservations
             </Link>
           )}
 
-          {/* CONDUCTEUR */}
+          {/* CONDUCTEUR - corrigé */}
           {userRoles.includes("conducteur") && (
             <Link
-              to="/trajets"
+              to="/dashboard/conducteur"
               className="block px-4 py-2 text-gray-700 hover:bg-gray-100"
             >
-              🚗 Gestion des trajets
+              🚗 Espace Conducteur
             </Link>
           )}
 
-          {/* EMPLOYÉ */}
-          {userRoles.includes("employe") && (
-            <Link
-              to="/dashboard/employe"
-              className="block px-4 py-2 text-gray-700 hover:bg-gray-100"
-            >
-              🏢 Espace Employé
-            </Link>
-          )}
+          {/* EMPLOYÉ - à créer ou supprimer */}
+          {/* {userRoles.includes("employe") && (
+          <Link
+            to="/dashboard/employe"
+            className="block px-4 py-2 text-gray-700 hover:bg-gray-100"
+          >
+            🏢 Espace Employé
+          </Link>
+        )} */}
 
-          {/* ADMIN */}
-          {userRoles.includes("admin") && (
+          {/* ADMIN - utilise administrateur */}
+          {userRoles.includes("administrateur") && (
             <Link
               to="/dashboard/admin"
               className="block px-4 py-2 text-gray-700 hover:bg-gray-100"

@@ -5,29 +5,63 @@ const { pool } = require("../config/db");
 require("dotenv").config();
 
 const JWT_EXPIRES = "7d";
+const register = async (req, res) => {
+  const { nom, prenom, email, password, roles } = req.body;
 
-async function register(req, res) {
   try {
-    const { nom, prenom, email, password } = req.body;
-    if (!email || !password || !prenom || !nom) {
-      return res.status(400).json({ success: false, message: "Champs manquants" });
-    }
+    const saltRounds = 12;
+    const hashedPassword = await bcrypt.hash(password, saltRounds);
 
-    const hash = await bcrypt.hash(password, 10);
-    await pool.query(
-      `INSERT INTO utilisateurs (nom, prenom, email, password_hash)
-       VALUES ($1, $2, $3, $4)`,
-      [nom, prenom, email, hash]
+    // Assure-toi que roles est un array valide
+    let rolesArray = Array.isArray(roles) ? roles : [roles];
+    
+    console.log("📋 Roles reçus:", roles);
+    console.log("📋 Roles array:", rolesArray);
+
+    const newUser = await pool.query(
+      "INSERT INTO utilisateurs (nom, prenom, email, password_hash, roles) VALUES ($1, $2, $3, $4, $5) RETURNING *",
+      [nom, prenom, email, hashedPassword, JSON.stringify(rolesArray)] // ← JSON.stringify ici
     );
-    res.json({ success: true, message: "Compte créé" });
+
+    const user = newUser.rows[0];
+
+    const token = jwt.sign(
+      { 
+        id: user.id, 
+        email: user.email,
+        roles: user.roles // ← JSON.parse ici
+      }, 
+      process.env.JWT_SECRET, 
+      { expiresIn: "7d" }
+    );
+
+    // Set le cookie JWT
+    res.cookie("token", token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 jours
+    });
+
+    res.json({ 
+      success: true, 
+      message: "Utilisateur créé et connecté automatiquement" 
+    });
+
   } catch (err) {
-    console.error(err);
-    if (err.code === "23505") {
-      return res.status(400).json({ success: false, message: "Email déjà utilisé" });
-    }
-    res.status(500).json({ success: false, message: "Erreur serveur" });
+  console.error("Erreur register:", err);
+  
+  // Gestion spécifique de l'email en doublon
+  if (err.code === '23505' && err.constraint === 'utilisateurs_email_key') {
+    return res.status(400).json({ 
+      success: false, 
+      message: "Cet email est déjà utilisé" 
+    });
   }
+  
+  res.status(500).json({ success: false, message: "Erreur serveur" });
 }
+};
 
 async function login(req, res) {
   try {
@@ -71,4 +105,11 @@ async function me(req, res) {
   }
 }
 
-module.exports = { register, login, me };
+// backend/controllers/authController.js
+const logout = async (req, res) => {
+  // Supprime le cookie JWT
+  res.clearCookie('token');
+  res.json({ success: true, message: "Déconnecté" });
+};
+
+module.exports = { register, login, me, logout };

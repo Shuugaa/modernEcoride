@@ -14,41 +14,60 @@ export function UserProvider({ children }) {
     checkAuth();
   }, []);
 
-  async function checkAuth(silent = false) {
-    if (!silent) setLoading(true);
+async function checkAuth(silent = false) {
+  if (!silent) setLoading(true);
 
-    try {
-      const data = await apiFetch("/auth/me");
+  try {
+    const data = await apiFetch("/auth/me");
+    console.log("📦 Réponse /auth/me dans checkAuth:", data);
 
-      // ← CORRECTION ICI : utilise success au lieu de loggedIn
-      if (data.success && data.user) {
-        let roles = data.user.roles || [];
-        if (typeof roles === "string") {
-          roles = [roles];
-        }
-
-        const userData = {
-          ...data.user,
-          roles,
-        };
-
-        setUser(userData);
-        return userData;
-      } else {
-        setUser(null);
-        return null;
+    if (data.success && data.user) {
+      let roles = data.user.roles || [];
+      if (typeof roles === "string") {
+        roles = [roles];
       }
 
-    } catch (err) {
+      const userData = {
+        ...data.user,
+        roles,
+      };
+
+      setUser(userData);
+      return userData;
+    } else {
       setUser(null);
       return null;
-    } finally {
-      if (!silent) setLoading(false);
     }
+
+  } catch (err) {
+    console.error("❌ Erreur checkAuth:", err);
+    setUser(null);
+    return null;
+  } finally {
+    if (!silent) setLoading(false);
+  }
+}
+
+  // ────────────────────────────────
+  // 2) Register
+  // ────────────────────────────────
+  async function register(userData) {
+    const data = await apiFetch("/auth/register", {
+      method: "POST",
+      body: JSON.stringify(userData),
+    });
+
+    if (!data.success) {
+      throw new Error(data.message || "Erreur lors de l'inscription");
+    }
+
+    // Utilise checkAuth comme pour login
+    const userDataResult = await checkAuth(true);
+    return userDataResult;
   }
 
   // ────────────────────────────────
-  // 2) Login (version corrigée)
+  // 3) Login (existant)
   // ────────────────────────────────
   async function login(email, password) {
     const data = await apiFetch("/auth/login", {
@@ -99,6 +118,7 @@ export function UserProvider({ children }) {
       loading,
       setUser,
       checkAuth,
+      register,
       login,
       logout,
       hasRole
