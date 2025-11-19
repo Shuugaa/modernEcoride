@@ -1,4 +1,4 @@
-const pool = require('../db');
+const { pool } = require('../config/db');
 const bcrypt = require('bcrypt');
 
 async function seed() {
@@ -17,10 +17,12 @@ async function seed() {
        ON CONFLICT (email) DO NOTHING`,
       [nom, prenom, email, [role], hashed]
     );
-    console.log('Seeded admin user');
+
+    console.log('✨ Admin user created / already exists');
     process.exit(0);
+
   } catch (err) {
-    console.error(err);
+    console.error('❌ Seed error:', err);
     process.exit(1);
   }
 }
