@@ -20,33 +20,35 @@ export function UserProvider({ children }) {
     try {
       const data = await apiFetch("/auth/me");
 
-      if (data.loggedIn) {
-        // Normalise les rôles en tableau
+      // ← CORRECTION ICI : utilise success au lieu de loggedIn
+      if (data.success && data.user) {
         let roles = data.user.roles || [];
-
-        // Si le backend renvoie juste "passager"
         if (typeof roles === "string") {
           roles = [roles];
         }
 
-        setUser({
+        const userData = {
           ...data.user,
           roles,
-        });
+        };
 
+        setUser(userData);
+        return userData;
       } else {
         setUser(null);
+        return null;
       }
 
     } catch (err) {
       setUser(null);
+      return null;
+    } finally {
+      if (!silent) setLoading(false);
     }
-
-    if (!silent) setLoading(false);
   }
 
   // ────────────────────────────────
-  // 2) Login
+  // 2) Login (version corrigée)
   // ────────────────────────────────
   async function login(email, password) {
     const data = await apiFetch("/auth/login", {
@@ -58,10 +60,11 @@ export function UserProvider({ children }) {
       throw new Error(data.message || "Identifiants incorrects");
     }
 
-    // Recharge clean depuis /auth/me
-    await checkAuth(true);
+    // Récupère les données utilisateur
+    const userData = await checkAuth(true);
 
-    return true;
+    // Retourne les données pour que les composants puissent les utiliser
+    return userData;
   }
 
   // ────────────────────────────────
@@ -72,12 +75,10 @@ export function UserProvider({ children }) {
     setUser(null);
   }
 
-
   function normalizeRole(role) {
     return role
       .toLowerCase()
       .replace("é", "e")
-      .replace("administrateur", "admin");
   }
 
   // ────────────────────────────────
@@ -91,7 +92,6 @@ export function UserProvider({ children }) {
 
     return roles.includes(target);
   }
-
 
   return (
     <UserContext.Provider value={{

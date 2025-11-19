@@ -11,24 +11,28 @@ export default function Login() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
 
-  // 👉 Si déjà connecté : redirection automatique
-  useEffect(() => {
-    if (user) {
+async function handleSubmit(e) {
+  e.preventDefault();
+  setError("");
+
+  try {
+    console.log("🔄 Avant appel login");
+    const userData = await login(email, password);
+    console.log("📦 userData reçu:", userData);
+    console.log("🔍 userData.roles:", userData?.roles);
+    
+    // Si on a les données utilisateur, on peut rediriger
+    if (userData && userData.roles && userData.roles.length > 0) {
+      console.log("✅ Redirection vers /dashboard");
       nav("/dashboard");
+    } else {
+      console.log("❌ Pas de redirection - userData invalide");
     }
-  }, [user]);
-
-  async function handleSubmit(e) {
-    e.preventDefault();
-    setError("");
-
-    try {
-      await login(email, password);  // login mettra user à jour
-      nav("/dashboard");             // redirection universelle
-    } catch (err) {
-      setError(err.message);
-    }
+  } catch (err) {
+    console.error("💥 Erreur login:", err);
+    setError(err.message);
   }
+}
 
   return (
     <div className="max-w-md mx-auto mt-12 bg-white p-6 shadow rounded">
