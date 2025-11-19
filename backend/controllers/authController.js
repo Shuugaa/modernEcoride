@@ -43,8 +43,9 @@ async function login(req, res) {
 
     res.cookie("token", token, {
       httpOnly: true,
-      sameSite: "lax",   // obligatoire en localhost
-      secure: false      // sinon Chrome bloque en dev
+      secure: process.env.NODE_ENV === "production",
+      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+      path: "/"
     });
 
 

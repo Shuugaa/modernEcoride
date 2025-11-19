@@ -39,8 +39,10 @@ export function UserProvider({ children }) {
       }
 
     } catch (err) {
+      console.error("❌ erreur /auth/me :", err);
       setUser(null);
     }
+
 
     if (!silent) setLoading(false);
   }
