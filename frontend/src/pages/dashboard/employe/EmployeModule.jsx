@@ -2,10 +2,23 @@
 import { useState, useEffect } from "react";
 import { apiFetch } from "../../../api/apiClient";
 
+
+function parseRoles(roles) {
+  if (!roles) return [];
+  if (Array.isArray(roles)) return roles;
+
+  try {
+    return JSON.parse(roles);
+  } catch (error) {
+    console.warn('Erreur parsing roles:', roles, error);
+    return [];
+  }
+}
+
 export default function EmployeModule() {
   const [activeTab, setActiveTab] = useState('dashboard');
   const [loading, setLoading] = useState(false);
-  
+
   // States pour chaque section
   const [stats, setStats] = useState(null);
   const [utilisateurs, setUtilisateurs] = useState([]);
@@ -83,7 +96,7 @@ export default function EmployeModule() {
         method: "PUT",
         body: JSON.stringify(modifications)
       });
-      
+
       if (data.success) {
         alert(data.message);
         loadUtilisateurs(); // Recharger
@@ -103,7 +116,7 @@ export default function EmployeModule() {
         method: "PUT",
         body: JSON.stringify({ statut, motif })
       });
-      
+
       if (data.success) {
         alert(data.message);
         loadTrajets(); // Recharger
@@ -118,7 +131,7 @@ export default function EmployeModule() {
 
   return (
     <div className="p-6">
-      
+
       {/* Header */}
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-900 mb-2">
@@ -142,11 +155,10 @@ export default function EmployeModule() {
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`py-2 px-1 border-b-2 font-medium text-sm ${
-                  activeTab === tab.id
-                    ? 'border-brand-500 text-brand-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                }`}
+                className={`py-2 px-1 border-b-2 font-medium text-sm ${activeTab === tab.id
+                  ? 'border-brand-500 text-brand-600'
+                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                  }`}
               >
                 {tab.label}
               </button>
@@ -163,7 +175,7 @@ export default function EmployeModule() {
         </div>
       ) : (
         <div>
-          
+
           {/* 📊 DASHBOARD */}
           {activeTab === 'dashboard' && stats && (
             <DashboardTab stats={stats} />
@@ -171,16 +183,16 @@ export default function EmployeModule() {
 
           {/* 👥 UTILISATEURS */}
           {activeTab === 'utilisateurs' && (
-            <UtilisateursTab 
-              utilisateurs={utilisateurs} 
+            <UtilisateursTab
+              utilisateurs={utilisateurs}
               onModifier={modifierUtilisateur}
             />
           )}
 
           {/* 🚗 TRAJETS */}
           {activeTab === 'trajets' && (
-            <TrajetsTab 
-              trajets={trajets} 
+            <TrajetsTab
+              trajets={trajets}
               onModerer={modererTrajet}
             />
           )}
@@ -205,7 +217,7 @@ function DashboardTab({ stats }) {
 
   return (
     <div className="space-y-8">
-      
+
       {/* Stats générales */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <StatCard
@@ -302,7 +314,7 @@ function UtilisateursTab({ utilisateurs, onModifier }) {
       <div className="px-6 py-4 border-b border-gray-200">
         <h3 className="text-lg font-semibold">👥 Gestion des Utilisateurs</h3>
       </div>
-      
+
       <div className="overflow-x-auto">
         <table className="min-w-full divide-y divide-gray-200">
           <thead className="bg-gray-50">
@@ -327,7 +339,7 @@ function UtilisateursTab({ utilisateurs, onModifier }) {
                 </td>
                 <td className="px-6 py-4">
                   <div className="flex flex-wrap gap-1">
-                    {JSON.parse(user.roles || '[]').map(role => (
+                    {parseRoles(user.roles).map(role => (
                       <span key={role} className="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded">
                         {role}
                       </span>
@@ -371,17 +383,19 @@ function UtilisateursTab({ utilisateurs, onModifier }) {
 
 // Modal de modification utilisateur
 function UserEditModal({ user, onClose, onSave }) {
-  const [roles, setRoles] = useState(JSON.parse(user.roles || '[]'));
+  const [roles, setRoles] = useState(parseRoles(user.roles));
   const [credits, setCredits] = useState(user.credits);
   const [creditAmount, setCreditAmount] = useState('');
 
   const handleSave = () => {
     const modifications = {};
-    
-    if (JSON.stringify(roles) !== user.roles) {
+
+    const currentRoles = JSON.stringify(parseRoles(user.roles));
+    const newRoles = JSON.stringify(roles);
+    if (currentRoles !== newRoles) {
       modifications.roles = roles;
     }
-    
+
     if (parseFloat(credits) !== parseFloat(user.credits)) {
       modifications.credits = parseFloat(credits);
     }
@@ -390,10 +404,30 @@ function UserEditModal({ user, onClose, onSave }) {
     onClose();
   };
 
-  const handleCredit = () => {
+  const handleCredit = async () => {
     if (creditAmount && parseFloat(creditAmount) > 0) {
-      setCredits(parseFloat(credits) + parseFloat(creditAmount));
-      setCreditAmount('');
+      try {
+        // Appel API pour créditer réellement en BDD
+        const data = await apiFetch(`/employe/utilisateurs/${user.id}/crediter`, {
+          method: "POST",
+          body: JSON.stringify({
+            montant: parseFloat(creditAmount),
+            motif: "Crédit employé"
+          })
+        });
+
+        if (data.success) {
+          // Met à jour le state local SEULEMENT si ça a marché en BDD
+          setCredits(parseFloat(credits) + parseFloat(creditAmount));
+          setCreditAmount('');
+          alert(`${creditAmount}€ crédités avec succès !`);
+        } else {
+          alert("Erreur lors du crédit: " + data.message);
+        }
+      } catch (err) {
+        console.error("Erreur crédit:", err);
+        alert("Erreur réseau lors du crédit");
+      }
     }
   };
 
@@ -416,7 +450,7 @@ function UserEditModal({ user, onClose, onSave }) {
         <div className="mb-4">
           <label className="block text-sm font-medium text-gray-700 mb-2">Rôles</label>
           <div className="space-y-2">
-            {['passager', 'conducteur', 'employe', 'admin'].map(role => (
+            {['passager', 'conducteur', 'employe'].map(role => (
               <label key={role} className="flex items-center">
                 <input
                   type="checkbox"
@@ -484,7 +518,7 @@ function TrajetsTab({ trajets, onModerer }) {
       <div className="px-6 py-4 border-b border-gray-200">
         <h3 className="text-lg font-semibold">🚗 Gestion des Trajets</h3>
       </div>
-      
+
       <div className="overflow-x-auto">
         <table className="min-w-full divide-y divide-gray-200">
           <thead className="bg-gray-50">
@@ -518,13 +552,12 @@ function TrajetsTab({ trajets, onModerer }) {
                   {new Date(trajet.date_depart).toLocaleDateString()}
                 </td>
                 <td className="px-6 py-4">
-                  <span className={`px-2 py-1 rounded text-xs font-medium ${
-                    trajet.statut === 'actif' ? 'bg-green-100 text-green-800' :
+                  <span className={`px-2 py-1 rounded text-xs font-medium ${trajet.statut === 'actif' ? 'bg-green-100 text-green-800' :
                     trajet.statut === 'en_cours' ? 'bg-blue-100 text-blue-800' :
-                    trajet.statut === 'termine' ? 'bg-gray-100 text-gray-800' :
-                    trajet.statut === 'suspendu' ? 'bg-red-100 text-red-800' :
-                    'bg-orange-100 text-orange-800'
-                  }`}>
+                      trajet.statut === 'termine' ? 'bg-gray-100 text-gray-800' :
+                        trajet.statut === 'suspendu' ? 'bg-red-100 text-red-800' :
+                          'bg-orange-100 text-orange-800'
+                    }`}>
                     {trajet.statut}
                   </span>
                 </td>
@@ -632,7 +665,7 @@ function SupportTab({ tickets }) {
       <div className="px-6 py-4 border-b border-gray-200">
         <h3 className="text-lg font-semibold">🎫 Support Tickets</h3>
       </div>
-      
+
       <div className="space-y-4 p-6">
         {tickets.length === 0 ? (
           <p className="text-gray-600 text-center py-8">Aucun ticket de support</p>
@@ -641,11 +674,10 @@ function SupportTab({ tickets }) {
             <div key={ticket.id} className="border border-gray-200 rounded-lg p-4">
               <div className="flex justify-between items-start mb-2">
                 <h4 className="font-medium text-gray-900">{ticket.subject}</h4>
-                <span className={`px-2 py-1 rounded text-xs ${
-                  ticket.status === 'open' ? 'bg-red-100 text-red-800' :
+                <span className={`px-2 py-1 rounded text-xs ${ticket.status === 'open' ? 'bg-red-100 text-red-800' :
                   ticket.status === 'in_progress' ? 'bg-yellow-100 text-yellow-800' :
-                  'bg-green-100 text-green-800'
-                }`}>
+                    'bg-green-100 text-green-800'
+                  }`}>
                   {ticket.status}
                 </span>
               </div>

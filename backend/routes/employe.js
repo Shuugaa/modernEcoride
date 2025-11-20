@@ -76,6 +76,22 @@ router.put("/utilisateurs/:id", async (req, res) => {
       });
     }
 
+    // 🔒 SÉCURITÉ : Employé ne peut pas donner role admin
+    if (roles && roles.includes('admin')) {
+      return res.status(403).json({
+        success: false,
+        message: "Seul un administrateur peut accorder le rôle admin"
+      });
+    }
+
+    // 🔒 SÉCURITÉ : Employé ne peut pas se modifier lui-même
+    if (parseInt(userId) === req.user.id) {
+      return res.status(403).json({
+        success: false,
+        message: "Vous ne pouvez pas modifier votre propre compte"
+      });
+    }
+
     values.push(userId);
 
     const { rows } = await pool.query(
@@ -94,9 +110,9 @@ router.put("/utilisateurs/:id", async (req, res) => {
 
   } catch (error) {
     console.error('❌ Erreur modification utilisateur:', error);
-    res.status(500).json({ 
-      success: false, 
-      message: "Erreur: " + error.message 
+    res.status(500).json({
+      success: false,
+      message: "Erreur: " + error.message
     });
   }
 });
@@ -173,9 +189,9 @@ router.put("/trajets/:id/moderate", async (req, res) => {
 
   } catch (error) {
     console.error('❌ Erreur modération trajet:', error);
-    res.status(500).json({ 
-      success: false, 
-      message: "Erreur: " + error.message 
+    res.status(500).json({
+      success: false,
+      message: "Erreur: " + error.message
     });
   }
 });
@@ -234,9 +250,9 @@ router.get("/dashboard", async (req, res) => {
 
   } catch (error) {
     console.error('❌ Erreur dashboard employé:', error);
-    res.status(500).json({ 
-      success: false, 
-      message: "Erreur: " + error.message 
+    res.status(500).json({
+      success: false,
+      message: "Erreur: " + error.message
     });
   }
 });
@@ -276,9 +292,9 @@ router.post("/utilisateurs/:id/crediter", async (req, res) => {
 
   } catch (error) {
     console.error('❌ Erreur crédit utilisateur:', error);
-    res.status(500).json({ 
-      success: false, 
-      message: "Erreur: " + error.message 
+    res.status(500).json({
+      success: false,
+      message: "Erreur: " + error.message
     });
   }
 });
