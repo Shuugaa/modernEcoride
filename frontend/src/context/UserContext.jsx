@@ -19,7 +19,6 @@ async function checkAuth(silent = false) {
 
   try {
     const data = await apiFetch("/auth/me");
-    console.log("📦 Réponse /auth/me dans checkAuth:", data);
 
     if (data.success && data.user) {
       let roles = data.user.roles || [];

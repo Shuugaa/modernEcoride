@@ -14,8 +14,6 @@ router.post("/toggle-conducteur", auth, async (req, res) => {
       return res.status(404).json({ success: false, message: "Utilisateur non trouvé" });
     }
 
-    console.log('🔍 Backend - user.roles:', user.roles, typeof user.roles);
-
     // Parsing robuste
     let currentRoles;
     if (Array.isArray(user.roles)) {
@@ -30,8 +28,6 @@ router.post("/toggle-conducteur", auth, async (req, res) => {
       currentRoles = user.role ? [user.role] : ['passager'];
     }
 
-    console.log('🔍 Backend - currentRoles:', currentRoles);
-
     // Toggle conducteur
     let newRoles;
     if (currentRoles.includes('conducteur')) {
@@ -44,8 +40,6 @@ router.post("/toggle-conducteur", auth, async (req, res) => {
     if (newRoles.length === 0) {
       newRoles = ['passager'];
     }
-
-    console.log('🔍 Backend - newRoles:', newRoles);
 
     await pool.query(
       "UPDATE utilisateurs SET roles = $1 WHERE id = $2",
