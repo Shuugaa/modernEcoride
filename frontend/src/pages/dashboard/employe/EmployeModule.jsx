@@ -562,7 +562,7 @@ function TrajetsTab({ trajets, onModerer }) {
                   </span>
                 </td>
                 <td className="px-6 py-4 text-sm text-gray-600">
-                  {trajet.places_reservees}/{trajet.places_disponibles} places
+                  {trajet.places_reservees}/{trajet.places} places
                 </td>
                 <td className="px-6 py-4">
                   <button
