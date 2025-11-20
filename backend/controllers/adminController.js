@@ -1,5 +1,6 @@
 // backend/controllers/adminController.js
 const { pool } = require("../config/db");
+const bcrypt = require('bcrypt');
 
 async function listUsers(req, res) {
   try {
@@ -35,26 +36,50 @@ async function updateUserRoles(req, res) {
   try {
     const id = Number(req.params.id);
     const { roles } = req.body;
-    if (!Array.isArray(roles)) return res.status(400).json({ success: false, message: "roles must be array" });
+    
+    if (!Array.isArray(roles)) {
+      return res.status(400).json({ success: false, message: "roles must be array" });
+    }
 
-    const { rows } = await pool.query(`UPDATE utilisateurs SET roles = $1 WHERE id = $2 RETURNING id, roles`, [roles, id]);
-    if (!rows[0]) return res.status(404).json({ success: false, message: "Utilisateur non trouvé" });
+    const { rows } = await pool.query(
+      `UPDATE utilisateurs SET roles = $1 WHERE id = $2 RETURNING id, roles`, 
+      [JSON.stringify(roles), id]
+    );
+    
+    if (!rows[0]) {
+      return res.status(404).json({ success: false, message: "Utilisateur non trouvé" });
+    }
+    
+    console.log(`✅ Rôles mis à jour pour utilisateur ${id}:`, rows[0]);
+    
     res.json({ success: true, user: rows[0] });
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ success: false, message: "Erreur serveur" });
+    console.error('❌ Erreur update rôles:', err);
+    res.status(500).json({ success: false, message: "Erreur serveur: " + err.message });
   }
 }
 
 async function deactivateUser(req, res) {
   try {
     const id = Number(req.params.id);
-    const { rows } = await pool.query(`UPDATE utilisateurs SET roles = ARRAY[]::text[] WHERE id = $1 RETURNING id`, [id]);
+
+    const { rows } = await pool.query(
+      `UPDATE utilisateurs SET roles = $1 WHERE id = $2 RETURNING id, roles`, 
+      [JSON.stringify([]), id]
+    );
+
     if (!rows[0]) return res.status(404).json({ success: false, message: "Utilisateur non trouvé" });
-    res.json({ success: true, message: "Utilisateur désactivé" });
+    
+    console.log(`✅ Utilisateur ${id} désactivé:`, rows[0]);
+    
+    res.json({ 
+      success: true, 
+      message: "Utilisateur désactivé",
+      user: rows[0]  // Retourne l'utilisateur modifié
+    });
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ success: false, message: "Erreur serveur" });
+    console.error('❌ Erreur désactivation:', err);
+    res.status(500).json({ success: false, message: "Erreur serveur: " + err.message });
   }
 }
 
@@ -98,66 +123,76 @@ async function siteStats(req, res) {
     res.status(500).json({ success: false, message: "Erreur serveur" });
   }
 }
-async function createEmployee(req, res) {
-  const { nom, prenom, email, password, roles } = req.body;
 
-  // Vérifier que l'utilisateur connecté est admin
-  const userRoles = req.user.roles || [];
-  if (!userRoles.includes('administrateur')) {
-    return res.status(403).json({ 
-      success: false, 
-      message: "Seuls les administrateurs peuvent créer des employés" 
-    });
-  }
-
-  const rolesAutorises = ["passager", "conducteur", "employe", "administrateur"];
-  const rolesValides = roles.every(role => rolesAutorises.includes(role));
-  
-  if (!rolesValides) {
-    return res.status(400).json({ 
-      success: false, 
-      message: "Rôles non autorisés" 
-    });
-  }
-
+const createEmployee = async (req, res) => {
   try {
-    const saltRounds = 12;
-    const hashedPassword = await bcrypt.hash(password, saltRounds);
-    let rolesArray = Array.isArray(roles) ? roles : [roles];
+    const { nom, prenom, email, mot_de_passe } = req.body;
 
-    const newUser = await pool.query(
-      "INSERT INTO utilisateurs (nom, prenom, email, password_hash, roles) VALUES ($1, $2, $3, $4, $5) RETURNING *",
-      [nom, prenom, email, hashedPassword, JSON.stringify(rolesArray)]
+    console.log('🔍 Création employé:', { nom, prenom, email });
+
+    // Validation des données
+    if (!nom || !prenom || !email || !mot_de_passe) {
+      return res.status(400).json({
+        success: false,
+        message: "Tous les champs sont requis"
+      });
+    }
+
+    // Vérifier que l'email n'existe pas déjà
+    const { rows: existingUser } = await pool.query(
+      "SELECT id FROM utilisateurs WHERE email = $1",
+      [email]
     );
 
-    const user = newUser.rows[0];
-    const userRoles = JSON.parse(user.roles);
+    if (existingUser.length > 0) {
+      return res.status(400).json({
+        success: false,
+        message: "Un utilisateur avec cet email existe déjà"
+      });
+    }
 
-    res.json({ 
-      success: true, 
-      message: "Utilisateur créé avec succès",
-      user: {
-        id: user.id,
-        nom: user.nom,
-        prenom: user.prenom,
-        email: user.email,
-        roles: userRoles,
-        credits: user.credits
+    const hashedPassword = await bcrypt.hash(mot_de_passe, 12);
+
+    // Créer l'employé avec le rôle "employe"
+    const { rows } = await pool.query(
+      `INSERT INTO utilisateurs (nom, prenom, email, password_hash, roles, credits)
+       VALUES ($1, $2, $3, $4, $5, $6)
+       RETURNING id, nom, prenom, email, roles, created_at`,
+      [nom, prenom, email, hashedPassword, JSON.stringify(['employe']), 0]
+    );
+
+    const newEmployee = rows[0];
+
+    console.log('✅ Employé créé:', newEmployee);
+
+    res.status(201).json({
+      success: true,
+      message: "Employé créé avec succès",
+      employee: {
+        id: newEmployee.id,
+        nom: newEmployee.nom,
+        prenom: newEmployee.prenom,
+        email: newEmployee.email,
+        roles: newEmployee.roles,
+        created_at: newEmployee.created_at
       }
     });
 
-  } catch (err) {
-    console.error("Erreur createEmployee:", err);
+  } catch (error) {
+    console.error('❌ Erreur création employé:', error);
     
-    if (err.code === '23505' && err.constraint === 'utilisateurs_email_key') {
-      return res.status(400).json({ 
-        success: false, 
-        message: "Cet email est déjà utilisé" 
+    if (error.code === '23505') { // Contrainte unique
+      return res.status(400).json({
+        success: false,
+        message: "Un utilisateur avec cet email existe déjà"
       });
     }
-    
-    res.status(500).json({ success: false, message: "Erreur serveur" });
+
+    res.status(500).json({
+      success: false,
+      message: "Erreur lors de la création: " + error.message
+    });
   }
-}
-  
+};
+
 module.exports = { listUsers, getUser, updateUserRoles, deactivateUser, listTrajets, siteStats, createEmployee };

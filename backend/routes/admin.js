@@ -14,5 +14,6 @@ router.post("/users/:id/deactivate", adminController.deactivateUser);
 
 router.get("/trajets", adminController.listTrajets);
 router.get("/stats", adminController.siteStats);
+router.post("/create-employee", adminController.createEmployee);
 
 module.exports = router;

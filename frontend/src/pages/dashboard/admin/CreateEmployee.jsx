@@ -9,7 +9,7 @@ export default function CreateEmployee() {
     password: "",
     roles: ["employe"]
   });
-  
+
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
@@ -24,7 +24,7 @@ export default function CreateEmployee() {
   const handleRoleToggle = (role) => {
     setFormData(prev => ({
       ...prev,
-      roles: prev.roles.includes(role) 
+      roles: prev.roles.includes(role)
         ? prev.roles.filter(r => r !== role)
         : [...prev.roles, role]
     }));
@@ -58,12 +58,15 @@ export default function CreateEmployee() {
     try {
       const data = await apiFetch("/admin/create-employee", {
         method: "POST",
-        body: JSON.stringify(formData)
+        body: JSON.stringify({
+          ...formData,
+          mot_de_passe: formData.password
+        })
       });
 
       if (data.success) {
         setMessage(`Utilisateur ${formData.prenom} ${formData.nom} créé avec succès !`);
-        
+
         // Reset form
         setFormData({
           nom: "",
@@ -91,7 +94,7 @@ export default function CreateEmployee() {
 
   return (
     <div className="p-6 max-w-2xl mx-auto">
-      
+
       {/* Header */}
       <div className="mb-8">
         <h2 className="text-2xl font-bold mb-2">Créer un Nouvel Utilisateur</h2>
@@ -115,7 +118,7 @@ export default function CreateEmployee() {
 
       {/* Formulaire */}
       <form onSubmit={handleSubmit} className="bg-white rounded-xl shadow p-6 space-y-6">
-        
+
         {/* Informations personnelles */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
@@ -195,18 +198,16 @@ export default function CreateEmployee() {
               <div
                 key={role.id}
                 onClick={() => handleRoleToggle(role.id)}
-                className={`p-4 border-2 rounded-lg cursor-pointer transition ${
-                  formData.roles.includes(role.id)
+                className={`p-4 border-2 rounded-lg cursor-pointer transition ${formData.roles.includes(role.id)
                     ? 'border-brand-dark bg-brand-light'
                     : 'border-gray-200 hover:border-gray-300'
-                }`}
+                  }`}
               >
                 <div className="flex items-center gap-3">
-                  <div className={`w-4 h-4 rounded border-2 ${
-                    formData.roles.includes(role.id)
+                  <div className={`w-4 h-4 rounded border-2 ${formData.roles.includes(role.id)
                       ? 'bg-brand-light0 border-brand-dark'
                       : 'border-gray-300'
-                  }`}>
+                    }`}>
                     {formData.roles.includes(role.id) && (
                       <div className="w-full h-full flex items-center justify-center">
                         <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
@@ -233,7 +234,7 @@ export default function CreateEmployee() {
               {formData.roles.map(roleId => {
                 const role = availableRoles.find(r => r.id === roleId);
                 return (
-                  <span 
+                  <span
                     key={roleId}
                     className="inline-flex px-3 py-1 bg-brand-light text-brand-verydark rounded-full text-sm"
                   >
@@ -254,7 +255,7 @@ export default function CreateEmployee() {
           >
             {loading ? "Création..." : "Créer l'utilisateur"}
           </button>
-          
+
           <button
             type="button"
             onClick={() => {

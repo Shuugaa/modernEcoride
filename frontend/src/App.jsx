@@ -26,6 +26,9 @@ import AdminStats from "./pages/dashboard/admin/Stats";
 import CreateEmployee from "./pages/dashboard/admin/CreateEmployee";
 import AdminTrajets from "./pages/dashboard/admin/AdminTrajets";
 
+// Module Employé
+import EmployeModule from "./pages/dashboard/employe/EmployeModule";
+
 // Pages conducteur
 import ConducteurIndex from "./pages/dashboard/conducteur/index";
 import MesTrajets from "./pages/dashboard/conducteur/MesTrajets";
@@ -84,6 +87,10 @@ export default function App() {
             <Route path="passager/historique" element={<HistoriqueTrajets />} />
             <Route path="passager/recherche" element={<RechercheShortcut />} />
             
+            {/* Route employé */}
+            <Route path="employe" element={<EmployeModule />} />
+
+            {/* Route recharge crédits */}
             <Route path="recharge-credits" element={<RechargeCredits />} />
 
             {/* Routes admin */}

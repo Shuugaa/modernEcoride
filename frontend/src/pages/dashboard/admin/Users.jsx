@@ -9,9 +9,6 @@ export default function AdminUsers() {
   const [error, setError] = useState("");
   const [editingUser, setEditingUser] = useState(null);
 
-    // ← AJOUTER CE DEBUG
-  console.log("🚨 User actuel:", user);
-  console.log("🚨 Rôles:", user?.roles);
   // Charger les utilisateurs
   useEffect(() => {
     loadUsers();
@@ -21,7 +18,7 @@ export default function AdminUsers() {
     try {
       setLoading(true);
       const data = await apiFetch("/admin/users");
-      
+
       if (data.success) {
         setUsers(data.users);
       } else {
@@ -37,6 +34,7 @@ export default function AdminUsers() {
   // Modifier les rôles d'un utilisateur
   const updateUserRoles = async (userId, newRoles) => {
     try {
+
       const data = await apiFetch(`/admin/users/${userId}/roles`, {
         method: "PUT",
         body: JSON.stringify({ roles: newRoles })
@@ -44,17 +42,21 @@ export default function AdminUsers() {
 
       if (data.success) {
         // Mettre à jour l'utilisateur dans la liste
-        setUsers(prev => prev.map(user => 
-          user.id === userId 
-            ? { ...user, roles: newRoles }
-            : user
+        setUsers(prev => prev.map(u =>
+          u.id === userId
+            ? { ...u, roles: newRoles }
+            : u
         ));
         setEditingUser(null);
+        alert("Rôles modifiés avec succès !"); // Feedback
       } else {
-        setError(data.message);
+        setError(data.message || "Erreur lors de la modification");
+        alert("Erreur: " + (data.message || "Modification échouée"));
       }
     } catch (err) {
-      setError(err.message);
+      console.error("Erreur modification rôles:", err);
+      setError("Erreur: " + err.message);
+      alert("Erreur réseau: " + err.message);
     }
   };
 
@@ -65,14 +67,14 @@ export default function AdminUsers() {
     }
 
     try {
-      const data = await apiFetch(`/admin/users/${userId}`, {
-        method: "DELETE"
+      const data = await apiFetch(`/admin/users/${userId}/deactivate`, {
+        method: "POST"
       });
 
       if (data.success) {
         // Marquer comme inactif
-        setUsers(prev => prev.map(user => 
-          user.id === userId 
+        setUsers(prev => prev.map(user =>
+          user.id === userId
             ? { ...user, active: false }
             : user
         ));
@@ -145,22 +147,22 @@ export default function AdminUsers() {
                       <div className="text-sm text-gray-500">ID: {user.id}</div>
                     </div>
                   </td>
-                  
+
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="text-sm text-gray-900">{user.email}</div>
                   </td>
-                  
+
                   <td className="px-6 py-4">
                     {editingUser === user.id ? (
-                      <RoleEditor 
-                        currentRoles={user.roles}
+                      <RoleEditor
+                        currentRoles={Array.isArray(user.roles) ? user.roles : JSON.parse(user.roles || '[]')}  // ✅ Parse si nécessaire
                         onSave={(newRoles) => updateUserRoles(user.id, newRoles)}
                         onCancel={() => setEditingUser(null)}
                       />
                     ) : (
                       <div className="flex flex-wrap gap-1">
-                        {user.roles.map(role => (
-                          <span 
+                        {(Array.isArray(user.roles) ? user.roles : JSON.parse(user.roles || '[]')).map(role => (
+                          <span
                             key={role}
                             className={`inline-flex px-2 py-1 text-xs rounded-full ${getRoleColor(role)}`}
                           >
@@ -170,21 +172,20 @@ export default function AdminUsers() {
                       </div>
                     )}
                   </td>
-                  
+
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="text-sm text-gray-900">{user.credits}€</div>
                   </td>
-                  
+
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <span className={`inline-flex px-2 py-1 text-xs rounded-full ${
-                      user.active 
-                        ? 'bg-green-100 text-green-800' 
-                        : 'bg-red-100 text-red-800'
-                    }`}>
+                    <span className={`inline-flex px-2 py-1 text-xs rounded-full ${user.active
+                      ? 'bg-green-100 text-green-800'
+                      : 'bg-red-100 text-red-800'
+                      }`}>
                       {user.active ? 'Actif' : 'Inactif'}
                     </span>
                   </td>
-                  
+
                   <td className="px-6 py-4 whitespace-nowrap text-sm space-x-2">
                     {editingUser === user.id ? null : (
                       <>
@@ -218,10 +219,10 @@ export default function AdminUsers() {
 // Composant pour éditer les rôles
 function RoleEditor({ currentRoles, onSave, onCancel }) {
   const [selectedRoles, setSelectedRoles] = useState(currentRoles);
-  
+
   const availableRoles = [
     'passager',
-    'conducteur', 
+    'conducteur',
     'employe',
     'administrateur'
   ];
@@ -241,11 +242,10 @@ function RoleEditor({ currentRoles, onSave, onCancel }) {
           <button
             key={role}
             onClick={() => toggleRole(role)}
-            className={`px-2 py-1 text-xs rounded border ${
-              selectedRoles.includes(role)
-                ? 'bg-brand-light border-blue-300 text-brand-verydark'
-                : 'bg-gray-100 border-gray-300 text-gray-600'
-            }`}
+            className={`px-2 py-1 text-xs rounded border ${selectedRoles.includes(role)
+              ? 'bg-brand-light border-blue-300 text-brand-verydark'
+              : 'bg-gray-100 border-gray-300 text-gray-600'
+              }`}
           >
             {getRoleLabel(role)}
           </button>
