@@ -123,8 +123,7 @@ router.put("/reservations/:id/statut", auth, requireConducteur, async (req, res)
     res.status(500).json({ success: false, message: "Erreur serveur" });
   }
 });
-
-// Dans conducteur.js, REMPLACE la route PUT /trajets/:id/statut :
+// Mettre à jour le statut d'un trajet
 router.put("/trajets/:id/statut", auth, requireConducteur, async (req, res) => {
   try {
     const { statut } = req.body;
@@ -235,6 +234,7 @@ router.put("/trajets/:id/statut", auth, requireConducteur, async (req, res) => {
   }
 });
 
+// Supprimer un trajet
 router.delete("/trajets/:id", auth, requireConducteur, async (req, res) => {
   try {
     const trajetId = req.params.id;
@@ -255,21 +255,34 @@ router.delete("/trajets/:id", auth, requireConducteur, async (req, res) => {
       });
     }
 
-    // Vérifier qu'il n'y a pas de réservations confirmées
-    const { rows: reservationRows } = await pool.query(
-      "SELECT COUNT(*) FROM reservations WHERE trajet_id = $1 AND statut = 'confirmee'",
+    const trajet = checkRows[0];
+
+    // NOUVELLE LOGIQUE : Vérifier les réservations selon le statut du trajet
+    if (trajet.statut === 'actif' || trajet.statut === 'en_cours') {
+      // Pour trajets actifs/en cours : vérifier s'il y a des réservations confirmées
+      const { rows: reservationRows } = await pool.query(
+        "SELECT COUNT(*) FROM reservations WHERE trajet_id = $1 AND statut = 'confirmee'",
+        [trajetId]
+      );
+
+      if (parseInt(reservationRows[0].count) > 0) {
+        return res.status(400).json({
+          success: false,
+          message: "Impossible de supprimer un trajet en cours avec des réservations confirmées"
+        });
+      }
+    }
+    
+    // Pour trajets terminés/annulés : OK, on peut supprimer même avec des réservations terminées
+    console.log(`🔍 Trajet ${trajet.statut} - Suppression autorisée`);
+
+    // Supprimer TOUTES les réservations (en_attente, confirmee, refusee, terminee)
+    const { rows: deletedReservations } = await pool.query(
+      "DELETE FROM reservations WHERE trajet_id = $1 RETURNING *",
       [trajetId]
     );
 
-    if (parseInt(reservationRows[0].count) > 0) {
-      return res.status(400).json({
-        success: false,
-        message: "Impossible de supprimer un trajet avec des réservations confirmées"
-      });
-    }
-
-    // Supprimer les réservations en attente d'abord
-    await pool.query("DELETE FROM reservations WHERE trajet_id = $1", [trajetId]);
+    console.log(`🔍 ${deletedReservations.length} réservations supprimées`);
 
     // Puis supprimer le trajet
     await pool.query("DELETE FROM trajets WHERE id = $1", [trajetId]);
@@ -278,7 +291,7 @@ router.delete("/trajets/:id", auth, requireConducteur, async (req, res) => {
 
     res.json({
       success: true,
-      message: "Trajet supprimé avec succès"
+      message: `Trajet supprimé avec succès (${deletedReservations.length} réservations supprimées)`
     });
 
   } catch (error) {
