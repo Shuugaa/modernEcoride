@@ -24,7 +24,7 @@ CREATE TABLE IF NOT EXISTS vehicules (
   created_at TIMESTAMP DEFAULT now()
 );
 
--- TRAJETS
+-- TRAJETS (version finale)
 CREATE TABLE IF NOT EXISTS trajets (
   id SERIAL PRIMARY KEY,
   conducteur_id INTEGER NOT NULL,
@@ -32,20 +32,29 @@ CREATE TABLE IF NOT EXISTS trajets (
   depart VARCHAR(255) NOT NULL,
   arrivee VARCHAR(255) NOT NULL,
   date_depart TIMESTAMP NOT NULL,
+  date_arrivee TIMESTAMP,                    
   places_disponibles INTEGER NOT NULL,
+  places_total INTEGER NOT NULL,             
   prix NUMERIC(8,2) NOT NULL,
-  created_at TIMESTAMP DEFAULT now()
+  distance INTEGER,                          
+  duree INTEGER,                             
+  statut VARCHAR(20) DEFAULT 'actif',        
+  notes TEXT,                                
+  created_at TIMESTAMP DEFAULT now(),
+  updated_at TIMESTAMP DEFAULT now()
 );
 
--- RESERVATIONS
+-- RESERVATIONS (améliorée aussi)
 CREATE TABLE IF NOT EXISTS reservations (
   id SERIAL PRIMARY KEY,
   trajet_id INTEGER REFERENCES trajets(id) ON DELETE CASCADE,
-  passager_id INTEGER NOT NULL, -- utilisateurs.id
-  statut VARCHAR(40) DEFAULT 'en_attente',
-  places_reservees INTEGER NOT NULL,
-  total_prix NUMERIC(8,2) NOT NULL DEFAULT 0,
-  created_at TIMESTAMP DEFAULT now()
+  passager_id INTEGER NOT NULL,
+  statut VARCHAR(40) DEFAULT 'en_attente',   -- en_attente, confirmee, annulee, terminee
+  places INTEGER NOT NULL,                   -- Simplifié : places au lieu de places_reservees
+  prix_total NUMERIC(8,2) NOT NULL DEFAULT 0,  -- Cohérent avec le front
+  notes_passager TEXT,                       -- Notes du passager
+  created_at TIMESTAMP DEFAULT now(),
+  updated_at TIMESTAMP DEFAULT now()
 );
 
 ALTER TABLE utilisateurs ADD COLUMN IF NOT EXISTS active BOOLEAN DEFAULT TRUE;

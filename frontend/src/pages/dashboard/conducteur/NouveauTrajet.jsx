@@ -26,13 +26,13 @@ export default function NouveauTrajet() {
     setLoading(true);
     try {
       const body = {
-        ville_depart: form.depart,
-        ville_arrivee: form.arrivee,
+        depart: form.depart,
+        arrivee: form.arrivee,
         date_depart: form.date_depart,
-        prix: Number(form.prix),
-        places_disponibles: Number(form.places_disponibles),
+        prix: parseFloat(form.prix),
+        places_disponibles: parseInt(form.places_disponibles)
       };
-      const res = await apiFetch("/conducteur/trajets/add", {
+      const res = await apiFetch("/conducteur/nouveau-trajet", {
         method: "POST",
         body: JSON.stringify(body),
       });

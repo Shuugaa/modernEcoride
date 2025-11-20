@@ -139,7 +139,7 @@ router.post("/reserver/:trajetId", auth, requirePassager, async (req, res) => {
     const prixTotal = trajet.prix * places;
     
     const newReservation = await pool.query(
-      `INSERT INTO reservations (trajet_id, passager_id, places, prix_total, status) 
+      `INSERT INTO reservations (trajet_id, passager_id, places, prix_total, statut) 
        VALUES ($1, $2, $3, $4, 'en_attente') RETURNING *`,
       [trajetId, req.user.id, places, prixTotal]
     );

@@ -7,12 +7,6 @@ export default function ToggleConducteur() {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
 
-  // DEBUG - Voir ce qu'on reçoit
-  console.log('🔍 User complet:', user);
-  console.log('🔍 user.role:', user?.role);
-  console.log('🔍 user.roles:', user?.roles);
-  console.log('🔍 type roles:', typeof user?.roles);
-
   // Logique plus robuste
   const isConducteur = (() => {
     if (user?.roles && Array.isArray(user.roles)) {
@@ -22,8 +16,6 @@ export default function ToggleConducteur() {
     }
     return false;
   })();
-
-  console.log('🔍 isConducteur:', isConducteur);
 
   const handleToggle = async () => {
     setLoading(true);
@@ -35,11 +27,18 @@ export default function ToggleConducteur() {
       });
 
       if (data.success) {
-        // Mettre à jour les rôles dans le contexte
-        setUser(prev => ({
-          ...prev,
-          roles: data.roles
-        }));
+        console.log('🔄 Toggle - Réponse API:', data);
+
+        setUser(prev => {
+          const newUser = {
+            ...prev,
+            roles: data.roles
+          };
+          console.log('🔄 Toggle - Ancien user:', prev);
+          console.log('🔄 Toggle - Nouveau user:', newUser);
+          return newUser;
+        });
+
         setMessage(data.message);
       }
 
@@ -53,30 +52,28 @@ export default function ToggleConducteur() {
   return (
     <div className="bg-white rounded-xl shadow p-6">
       <h3 className="text-lg font-semibold mb-4">Devenir Conducteur</h3>
-      
+
       <div className="mb-4">
         <p className="text-gray-600 mb-2">
-          {isConducteur 
+          {isConducteur
             ? "Vous êtes actuellement conducteur. Vous pouvez créer des trajets."
             : "Devenez conducteur pour proposer des trajets et gagner de l'argent !"
           }
         </p>
-        
-        <div className={`inline-flex items-center px-3 py-1 rounded-full text-sm ${
-          isConducteur 
-            ? "bg-green-100 text-green-800" 
+
+        <div className={`inline-flex items-center px-3 py-1 rounded-full text-sm ${isConducteur
+            ? "bg-green-100 text-green-800"
             : "bg-gray-100 text-gray-800"
-        }`}>
+          }`}>
           {isConducteur ? "🚗 Conducteur" : "🎒 Passager uniquement"}
         </div>
       </div>
 
       {message && (
-        <div className={`mb-4 p-3 rounded-lg ${
-          message.includes("Erreur") 
-            ? "bg-red-100 text-red-700" 
+        <div className={`mb-4 p-3 rounded-lg ${message.includes("Erreur")
+            ? "bg-red-100 text-red-700"
             : "bg-green-100 text-green-700"
-        }`}>
+          }`}>
           {message}
         </div>
       )}
@@ -84,15 +81,14 @@ export default function ToggleConducteur() {
       <button
         onClick={handleToggle}
         disabled={loading}
-        className={`px-4 py-2 rounded-lg font-medium transition ${
-          isConducteur
+        className={`px-4 py-2 rounded-lg font-medium transition ${isConducteur
             ? "bg-red-600 text-white hover:bg-red-700"
             : "bg-green-600 text-white hover:bg-green-700"
-        } disabled:opacity-50`}
+          } disabled:opacity-50`}
       >
-        {loading 
-          ? "..." 
-          : isConducteur 
+        {loading
+          ? "..."
+          : isConducteur
             ? "Arrêter d'être conducteur"
             : "Devenir conducteur"
         }

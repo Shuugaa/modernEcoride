@@ -41,9 +41,29 @@ export default function ReservationEnCours() {
       <h2 className="text-2xl font-bold mb-4">Réservation en cours</h2>
 
       <div className="bg-white p-4 rounded shadow">
-        <div className="font-semibold">{resv.ville_depart} → {resv.ville_arrivee}</div>
-        <div className="text-sm text-gray-500">Le {new Date(resv.date).toLocaleString()}</div>
-        <div className="mt-2">Conducteur : {resv.conducteur_prenom} {resv.conducteur_nom}</div>
+        <div className="font-semibold">{resv.depart} → {resv.arrivee}</div>
+        <div className="text-sm text-gray-500">
+          Le {new Date(resv.date_depart).toLocaleString()}
+        </div>
+        <div className="mt-2">
+          Conducteur : {resv.prenom} {resv.nom}
+        </div>
+        <div className="mt-2">
+          Places réservées : {resv.places}
+        </div>
+        <div className="mt-2">
+          Prix total : {resv.prix_total}€
+        </div>
+        <div className="mt-2">
+          <span className={`px-2 py-1 rounded text-sm ${resv.statut === 'confirmee'
+              ? 'bg-green-100 text-green-800'
+              : resv.statut === 'en_attente'
+                ? 'bg-yellow-100 text-yellow-800'
+                : 'bg-red-100 text-red-800'
+            }`}>
+            Statut: {resv.statut === 'en_attente' ? 'En attente' : resv.statut}
+          </span>
+        </div>
       </div>
     </div>
   );

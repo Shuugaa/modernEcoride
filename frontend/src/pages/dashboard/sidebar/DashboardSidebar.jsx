@@ -4,10 +4,10 @@ import { useUser } from "../../../context/UserContext";
 import ToggleConducteur from "../modules/ToggleConducteur";
 
 export default function DashboardSidebar() {
-  const { user, hasRole } = useUser();
+  const { user } = useUser();
 
   const userRoles = Array.isArray(user?.roles) ? user.roles : (user?.role ? [user.role] : []);
-
+  
   return (
     <div className="sticky top-6">
       <div className="bg-white p-4 rounded-xl shadow">
@@ -28,9 +28,11 @@ export default function DashboardSidebar() {
           <Link to="/dashboard/recharge-credits" className="text-xs text-green-600 hover:underline">Recharger</Link>
         </div>
 
-        <div className="mb-4">
-          <ToggleConducteur />
-        </div>
+        {(userRoles.includes("passager") || userRoles.includes("conducteur")) ? (
+          <div className="mb-4">
+            <ToggleConducteur />
+          </div>
+        ) : null}
 
         {/* nav */}
         <nav className="flex flex-col gap-1">
@@ -69,13 +71,6 @@ export default function DashboardSidebar() {
               <Link to="/dashboard/admin" className="block px-3 py-2 rounded hover:bg-gray-100">Administration</Link>
             </>
           )}
-
-          <Link
-            to="/dashboard/recharge-credits"
-            className="flex items-center gap-3 px-3 py-2 text-gray-700 hover:bg-gray-100 rounded-lg"
-          >
-            💰 Recharger crédits
-          </Link>
         </nav>
       </div>
 
