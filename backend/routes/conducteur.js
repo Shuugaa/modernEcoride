@@ -37,7 +37,7 @@ router.post("/nouveau-trajet", auth, requireConducteur, async (req, res) => {
   }
 });
 
-// Mes trajets
+// Mes trajets (EXCLURE les supprimés)
 router.get("/mes-trajets", auth, requireConducteur, async (req, res) => {
   try {
     const { rows } = await pool.query(`
@@ -48,7 +48,8 @@ router.get("/mes-trajets", auth, requireConducteur, async (req, res) => {
             COALESCE(SUM(r.places), 0) as places_reservees_total
             FROM trajets t
             LEFT JOIN reservations r ON t.id = r.trajet_id
-            WHERE t.conducteur_id = $1
+            WHERE t.conducteur_id = $1 
+              AND t.deleted_at IS NULL
             GROUP BY t.id, t.created_at
             ORDER BY t.date_depart ASC
       `,
@@ -158,7 +159,6 @@ router.put("/trajets/:id/statut", auth, requireConducteur, async (req, res) => {
 
     // 💰 SI LE TRAJET EST TERMINÉ → PAYER LE CONDUCTEUR
     if (statut === 'termine') {
-      console.log('💰 Trajet terminé - Calcul des paiements...');
 
       // Récupérer toutes les réservations confirmées
       const { rows: reservations } = await pool.query(
@@ -168,16 +168,12 @@ router.put("/trajets/:id/statut", auth, requireConducteur, async (req, res) => {
          WHERE r.trajet_id = $1 AND r.statut = 'confirmee'`,
         [trajetId]
       );
-
-      console.log('💰 Réservations confirmées:', reservations);
-
       if (reservations.length > 0) {
         // Calculer le total à payer au conducteur
         const totalGagne = reservations.reduce((total, res) => {
           return total + parseFloat(res.prix_total);
         }, 0);
 
-        console.log(`💰 Total à payer au conducteur: ${totalGagne}€`);
 
         // Créditer le conducteur
         await pool.query(
@@ -190,9 +186,6 @@ router.put("/trajets/:id/statut", auth, requireConducteur, async (req, res) => {
           "UPDATE reservations SET statut = 'terminee' WHERE trajet_id = $1 AND statut = 'confirmee'",
           [trajetId]
         );
-
-        console.log(`💰 Conducteur crédité de ${totalGagne}€`);
-        console.log(`✅ ${reservations.length} réservations marquées comme terminées`);
       }
     }
 
@@ -234,7 +227,7 @@ router.put("/trajets/:id/statut", auth, requireConducteur, async (req, res) => {
   }
 });
 
-// Supprimer un trajet
+// Supprimer un trajet (VERSION CORRIGÉE - SOFT DELETE)
 router.delete("/trajets/:id", auth, requireConducteur, async (req, res) => {
   try {
     const trajetId = req.params.id;
@@ -244,7 +237,7 @@ router.delete("/trajets/:id", auth, requireConducteur, async (req, res) => {
 
     // Vérifier que le trajet appartient au conducteur
     const { rows: checkRows } = await pool.query(
-      "SELECT * FROM trajets WHERE id = $1 AND conducteur_id = $2",
+      "SELECT * FROM trajets WHERE id = $1 AND conducteur_id = $2 AND deleted_at IS NULL",
       [trajetId, conducteurId]
     );
 
@@ -257,9 +250,8 @@ router.delete("/trajets/:id", auth, requireConducteur, async (req, res) => {
 
     const trajet = checkRows[0];
 
-    // NOUVELLE LOGIQUE : Vérifier les réservations selon le statut du trajet
+    // Vérifier les réservations selon le statut du trajet
     if (trajet.statut === 'actif' || trajet.statut === 'en_cours') {
-      // Pour trajets actifs/en cours : vérifier s'il y a des réservations confirmées
       const { rows: reservationRows } = await pool.query(
         "SELECT COUNT(*) FROM reservations WHERE trajet_id = $1 AND statut = 'confirmee'",
         [trajetId]
@@ -272,26 +264,25 @@ router.delete("/trajets/:id", auth, requireConducteur, async (req, res) => {
         });
       }
     }
-    
-    // Pour trajets terminés/annulés : OK, on peut supprimer même avec des réservations terminées
-    console.log(`🔍 Trajet ${trajet.statut} - Suppression autorisée`);
 
-    // Supprimer TOUTES les réservations (en_attente, confirmee, refusee, terminee)
-    const { rows: deletedReservations } = await pool.query(
-      "DELETE FROM reservations WHERE trajet_id = $1 RETURNING *",
+    // ✅ SOFT DELETE : Marquer comme supprimé au lieu de supprimer
+    await pool.query(
+      "UPDATE trajets SET deleted_at = NOW(), statut = 'supprime' WHERE id = $1",
       [trajetId]
     );
 
-    console.log(`🔍 ${deletedReservations.length} réservations supprimées`);
+    // ✅ MARQUER les réservations comme annulées au lieu de les supprimer
+    const { rows: updatedReservations } = await pool.query(
+      "UPDATE reservations SET statut = 'annulee', updated_at = NOW() WHERE trajet_id = $1 AND statut != 'terminee' RETURNING *",
+      [trajetId]
+    );
 
-    // Puis supprimer le trajet
-    await pool.query("DELETE FROM trajets WHERE id = $1", [trajetId]);
-
-    console.log('✅ Trajet supprimé');
+    console.log(`✅ Trajet marqué comme supprimé`);
+    console.log(`✅ ${updatedReservations.length} réservations annulées`);
 
     res.json({
       success: true,
-      message: `Trajet supprimé avec succès (${deletedReservations.length} réservations supprimées)`
+      message: `Trajet supprimé (${updatedReservations.length} réservations annulées)`
     });
 
   } catch (error) {

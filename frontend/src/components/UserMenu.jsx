@@ -86,7 +86,7 @@ export default function UserMenu() {
             </Link>
           )}
 
-          {/* CONDUCTEUR - corrigé */}
+          {/* CONDUCTEUR */}
           {userRoles.includes("conducteur") && (
             <Link
               to="/dashboard/conducteur"
@@ -96,7 +96,7 @@ export default function UserMenu() {
             </Link>
           )}
 
-          {/* EMPLOYÉ - à créer ou supprimer */}
+          {/* EMPLOYÉ */}
           {userRoles.includes("employe") && (
           <Link
             to="/dashboard/employe"

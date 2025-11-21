@@ -17,6 +17,7 @@ const employeRoutes = require("./routes/employe");
 const conducteurRoutes = require("./routes/conducteur");  // Pour les APIs conducteur
 const passagerRoutes = require("./routes/passager");      // Pour les APIs passager  
 const userRoutes = require("./routes/user");              // Pour become-conducteur
+const analyticsRoutes = require("./routes/analytics");
 
 const app = express();
 
@@ -27,7 +28,8 @@ app.use(cookieParser());
 app.use(cors({
   origin: process.env.CORS_ORIGIN || "http://localhost:5173",
   credentials: true,
-  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"]
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
+  allowedHeaders: ["Content-Type", "Authorization"]
 }));
 
 // Routes
@@ -39,7 +41,8 @@ app.use("/employe", employeRoutes);
 app.use("/trajets", trajetRoutes);  // Pour recherche, détails publics, etc.
 app.use("/conducteur", conducteurRoutes);    // /conducteur/mes-trajets, /conducteur/nouveau-trajet, etc.
 app.use("/passager", passagerRoutes);        // /passager/recherche, /passager/reservations, etc.
-app.use("/user", userRoutes);                // /user/become-conducteur
+app.use("/user", userRoutes);             // /user/become-conducteur
+app.use("/analytics", analyticsRoutes); // Nouvelles routes analytics
 
 // Vérifier PostgreSQL avant de lancer
 async function ensurePostgres(retries = 10) {

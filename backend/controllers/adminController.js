@@ -9,7 +9,7 @@ async function listUsers(req, res) {
     const offset = (page - 1) * limit;
 
     const usersQ = await pool.query(
-      `SELECT id, nom, prenom, email, roles, credits, created_at
+      `SELECT id, nom, prenom, email, roles, credits, created_at, active, updated_at
        FROM utilisateurs ORDER BY id DESC LIMIT $1 OFFSET $2`,
       [limit, offset]
     );
@@ -23,7 +23,7 @@ async function listUsers(req, res) {
 async function getUser(req, res) {
   try {
     const id = Number(req.params.id);
-    const { rows } = await pool.query(`SELECT id, nom, prenom, email, roles, credits, created_at FROM utilisateurs WHERE id = $1`, [id]);
+    const { rows } = await pool.query(`SELECT id, nom, prenom, email, roles, credits, created_at, active, updated_at FROM utilisateurs WHERE id = $1`, [id]);
     if (!rows[0]) return res.status(404).json({ success: false, message: "Utilisateur non trouvé" });
     res.json({ success: true, user: rows[0] });
   } catch (err) {
@@ -36,22 +36,22 @@ async function updateUserRoles(req, res) {
   try {
     const id = Number(req.params.id);
     const { roles } = req.body;
-    
+
     if (!Array.isArray(roles)) {
       return res.status(400).json({ success: false, message: "roles must be array" });
     }
 
     const { rows } = await pool.query(
-      `UPDATE utilisateurs SET roles = $1 WHERE id = $2 RETURNING id, roles`, 
+      `UPDATE utilisateurs SET roles = $1 WHERE id = $2 RETURNING id, roles`,
       [JSON.stringify(roles), id]
     );
-    
+
     if (!rows[0]) {
       return res.status(404).json({ success: false, message: "Utilisateur non trouvé" });
     }
-    
+
     console.log(`✅ Rôles mis à jour pour utilisateur ${id}:`, rows[0]);
-    
+
     res.json({ success: true, user: rows[0] });
   } catch (err) {
     console.error('❌ Erreur update rôles:', err);
@@ -59,38 +59,76 @@ async function updateUserRoles(req, res) {
   }
 }
 
-async function deactivateUser(req, res) {
+async function toggleUserActive(req, res) {
   try {
-    const id = Number(req.params.id);
+    const { id } = req.params;
+    const { active } = req.body;
 
+    // Validation
+    if (typeof active !== 'boolean') {
+      return res.status(400).json({
+        success: false,
+        message: "Le champ 'active' doit être un booléen"
+      });
+    }
+
+    // Empêcher l'admin de se désactiver lui-même
+    if (parseInt(id) === req.user.id && !active) {
+      return res.status(400).json({
+        success: false,
+        message: "Vous ne pouvez pas vous désactiver vous-même"
+      });
+    }
+
+    // Mettre à jour uniquement le champ active
     const { rows } = await pool.query(
-      `UPDATE utilisateurs SET roles = $1 WHERE id = $2 RETURNING id, roles`, 
-      [JSON.stringify([]), id]
+      "UPDATE utilisateurs SET active = $1, updated_at = NOW() WHERE id = $2 RETURNING id, nom, prenom, email, active, roles",
+      [active, id]
     );
 
-    if (!rows[0]) return res.status(404).json({ success: false, message: "Utilisateur non trouvé" });
-    
-    console.log(`✅ Utilisateur ${id} désactivé:`, rows[0]);
-    
-    res.json({ 
-      success: true, 
-      message: "Utilisateur désactivé",
-      user: rows[0]  // Retourne l'utilisateur modifié
+    if (rows.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "Utilisateur non trouvé"
+      });
+    }
+
+    const user = rows[0];
+
+    res.json({
+      success: true,
+      message: active ? "Utilisateur réactivé avec succès" : "Utilisateur désactivé avec succès",
+      user: user
     });
-  } catch (err) {
-    console.error('❌ Erreur désactivation:', err);
-    res.status(500).json({ success: false, message: "Erreur serveur: " + err.message });
+
+  } catch (error) {
+    console.error("❌ Erreur toggle active:", error);
+    res.status(500).json({
+      success: false,
+      message: "Erreur serveur"
+    });
   }
 }
 
 async function listTrajets(req, res) {
   try {
     const conducteur_id = req.query.conducteur_id;
+    const status = req.query.status; // ← récupère le paramètre du frontend
+
     let base = `SELECT t.*, u.nom AS conducteur_nom, u.prenom AS conducteur_prenom FROM trajets t LEFT JOIN utilisateurs u ON u.id = t.conducteur_id`;
     const params = [];
+    let where = [];
+
     if (conducteur_id) {
-      base += ` WHERE t.conducteur_id = $1`;
+      where.push(`t.conducteur_id = $${params.length + 1}`);
       params.push(conducteur_id);
+    }
+    if (status && status !== "all") {
+      where.push(`t.statut = $${params.length + 1}`);
+      params.push(status);
+    }
+    if (where.length > 0) {
+      base += ` WHERE ` + where.join(" AND ");
     }
     base += ` ORDER BY t.date_depart DESC LIMIT 500`;
 
@@ -180,7 +218,7 @@ const createEmployee = async (req, res) => {
 
   } catch (error) {
     console.error('❌ Erreur création employé:', error);
-    
+
     if (error.code === '23505') { // Contrainte unique
       return res.status(400).json({
         success: false,
@@ -195,4 +233,4 @@ const createEmployee = async (req, res) => {
   }
 };
 
-module.exports = { listUsers, getUser, updateUserRoles, deactivateUser, listTrajets, siteStats, createEmployee };
+module.exports = { listUsers, getUser, updateUserRoles, listTrajets, siteStats, createEmployee, toggleUserActive };

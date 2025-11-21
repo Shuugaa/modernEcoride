@@ -16,10 +16,7 @@ async function handleSubmit(e) {
   setError("");
 
   try {
-    console.log("🔄 Avant appel login");
     const userData = await login(email, password);
-    console.log("📦 userData reçu:", userData);
-    console.log("🔍 userData.roles:", userData?.roles);
     
     // Si on a les données utilisateur, on peut rediriger
     if (userData && userData.roles && userData.roles.length > 0) {

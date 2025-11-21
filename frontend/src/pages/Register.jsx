@@ -1,11 +1,10 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { useUser } from "../context/UserContext";
-import { apiFetch } from "../api/apiClient";
 
 export default function Register() {
   const nav = useNavigate();
-  const { setUser } = useUser();
+  const { register: registerUser } = useUser(); // ✅ Une seule ligne pour le context
 
   const [nom, setNom] = useState("");
   const [prenom, setPrenom] = useState("");
@@ -13,20 +12,51 @@ export default function Register() {
   const [role, setRole] = useState("passager");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
-  const { register: registerUser } = useUser();
+  const [loading, setLoading] = useState(false); // ✅ Ajouter loading
 
-  const register = async (e) => {
+  const handleSubmit = async (e) => { // ✅ Renommer pour éviter confusion
     e.preventDefault();
     setError("");
+    setLoading(true);
 
     try {
+      // ✅ Validation côté client
+      if (!nom.trim() || !prenom.trim() || !email.trim() || !password.trim()) {
+        throw new Error("Tous les champs sont obligatoires");
+      }
+
+      if (password.length < 6) {
+        throw new Error("Le mot de passe doit faire au moins 6 caractères");
+      }
+
+      if (!email.includes('@')) {
+        throw new Error("Adresse email invalide");
+      }
+
       let rolesToSend = role === "both" ? ["passager", "conducteur"] : [role];
 
-      await registerUser({ nom, prenom, email, password, roles: rolesToSend });
+      const userData = await registerUser({ 
+        nom: nom.trim(), 
+        prenom: prenom.trim(), 
+        email: email.trim(), 
+        password, 
+        roles: rolesToSend 
+      });
 
-      nav("/dashboard");
+      console.log("✅ Inscription réussie:", userData); // DEBUG
+
+      // ✅ Vérifier que les données sont bien là
+      if (userData && userData.roles && userData.roles.length > 0) {
+        nav("/dashboard");
+      } else {
+        throw new Error("Inscription réussie mais données manquantes");
+      }
+
     } catch (err) {
+      console.error("❌ Erreur inscription:", err);
       setError(err.message);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -41,38 +71,42 @@ export default function Register() {
         Rejoignez notre communauté de covoiturage 🚗🌿
       </p>
 
-      <form className="flex flex-col gap-4" onSubmit={register}>
+      <form className="flex flex-col gap-4" onSubmit={handleSubmit}>
 
         {/* Nom */}
         <div className="flex flex-col">
           <label className="text-sm text-brand-verydark font-semibold mb-1">
-            Nom
+            Nom *
           </label>
           <input
             value={nom}
             onChange={(e) => setNom(e.target.value)}
             className="border border-brand-light rounded p-2 focus:outline-none focus:ring-2 focus:ring-brand-dark"
             placeholder="ex : Durand"
+            required
+            disabled={loading}
           />
         </div>
 
         {/* Prénom */}
         <div className="flex flex-col">
           <label className="text-sm text-brand-verydark font-semibold mb-1">
-            Prénom
+            Prénom *
           </label>
           <input
             value={prenom}
             onChange={(e) => setPrenom(e.target.value)}
             className="border border-brand-light rounded p-2 focus:outline-none focus:ring-2 focus:ring-brand-dark"
             placeholder="ex : Marie"
+            required
+            disabled={loading}
           />
         </div>
 
         {/* Email */}
         <div className="flex flex-col">
           <label className="text-sm text-brand-verydark font-semibold mb-1">
-            Email
+            Email *
           </label>
           <input
             value={email}
@@ -80,20 +114,25 @@ export default function Register() {
             type="email"
             className="border border-brand-light rounded p-2 focus:outline-none focus:ring-2 focus:ring-brand-dark"
             placeholder="ex : marie@example.com"
+            required
+            disabled={loading}
           />
         </div>
 
         {/* Mot de passe */}
         <div className="flex flex-col">
           <label className="text-sm text-brand-verydark font-semibold mb-1">
-            Mot de passe
+            Mot de passe *
           </label>
           <input
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             type="password"
             className="border border-brand-light rounded p-2 focus:outline-none focus:ring-2 focus:ring-brand-dark"
-            placeholder="Choisissez un mot de passe"
+            placeholder="Minimum 6 caractères"
+            required
+            minLength={6}
+            disabled={loading}
           />
         </div>
 
@@ -102,36 +141,50 @@ export default function Register() {
           <label className="text-sm text-brand-verydark font-semibold mb-1">
             Vous êtes :
           </label>
-
           <select
             value={role}
             onChange={(e) => setRole(e.target.value)}
             className="border border-brand-light rounded p-2 bg-white focus:outline-none focus:ring-2 focus:ring-brand-dark"
+            disabled={loading}
           >
-            <option value="passager">Passager</option>
-            <option value="conducteur">Conducteur</option>
-            <option value="both">Passager et Conducteur</option>
+            <option value="passager">🚗 Passager</option>
+            <option value="conducteur">🚙 Conducteur</option>
+            <option value="both">🚗🚙 Passager et Conducteur</option>
           </select>
         </div>
 
         {/* Erreur */}
         {error && (
-          <p className="text-red-500 text-center font-semibold">{error}</p>
+          <div className="bg-red-50 border border-red-200 rounded p-3">
+            <p className="text-red-800 text-sm">{error}</p>
+          </div>
         )}
 
         {/* Bouton */}
         <button
-          className="bg-brand-dark hover:bg-brand-verydark text-white p-2 rounded transition font-semibold"
+          type="submit"
+          disabled={loading}
+          className="bg-brand-dark hover:bg-brand-verydark text-white p-2 rounded transition font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          S'inscrire
+          {loading ? (
+            <span className="flex items-center justify-center gap-2">
+              <div className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full"></div>
+              Inscription en cours...
+            </span>
+          ) : (
+            "S'inscrire"
+          )}
         </button>
       </form>
 
       <p className="mt-5 text-center text-gray-600">
         Déjà un compte ?
-        <a href="/login" className="text-brand-dark hover:text-brand-verydark ml-1 font-semibold">
+        <Link 
+          to="/login" 
+          className="text-brand-dark hover:text-brand-verydark ml-1 font-semibold"
+        >
           Se connecter
-        </a>
+        </Link>
       </p>
     </div>
   );

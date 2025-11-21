@@ -1,7 +1,8 @@
 const express = require("express");
 const router = express.Router();
-const { auth } = require("../middleware/auth");
+const { auth, optionalAuth } = require("../middleware/auth");
 const { pool } = require("../config/db");
+const { logSearch } = require("../middleware/mongoAuth");
 
 // ────────────────────────────────────────────────────────
 // ROUTES PUBLIQUES UNIQUEMENT
@@ -9,7 +10,7 @@ const { pool } = require("../config/db");
 
 // Rechercher des trajets (public)
 // REMPLACE la route search dans trajets.js :
-router.get("/search", async (req, res) => {
+router.get("/search", optionalAuth, logSearch, async (req, res) => {
   const { depart, arrivee, date, prix_max, places_min } = req.query;
   
   try {
@@ -21,7 +22,7 @@ router.get("/search", async (req, res) => {
         t.places_disponibles as places_restantes
       FROM trajets t
       JOIN utilisateurs u ON t.conducteur_id = u.id
-      WHERE t.statut = 'actif' AND t.date_depart >= NOW()
+      WHERE t.statut = 'actif' AND t.date_depart >= NOW() AND t.deleted_at IS NULL AND t.statut = 'actif'
     `;
     
     const params = [];
@@ -53,12 +54,7 @@ router.get("/search", async (req, res) => {
     
     query += ` ORDER BY t.date_depart ASC`;
 
-    console.log('🔍 Query:', query);
-    console.log('🔍 Params:', params);
-
     const { rows } = await pool.query(query, params);
-
-    console.log('🔍 Results:', rows.length);
 
     res.json({ 
       success: true, 

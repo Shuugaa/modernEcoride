@@ -61,28 +61,33 @@ export default function AdminUsers() {
   };
 
   // Désactiver un utilisateur
-  const deactivateUser = async (userId) => {
-    if (!window.confirm("Êtes-vous sûr de vouloir désactiver cet utilisateur ?")) {
+  const toggleUserActive = async (userId, currentActive) => {
+    const action = currentActive ? "désactiver" : "réactiver";
+    if (!window.confirm(`Êtes-vous sûr de vouloir ${action} cet utilisateur ?`)) {
       return;
     }
 
     try {
-      const data = await apiFetch(`/admin/users/${userId}/deactivate`, {
-        method: "POST"
+      const data = await apiFetch(`/admin/users/${userId}/toggle-active`, {
+        method: "PATCH",
+        body: JSON.stringify({ active: !currentActive })
       });
 
       if (data.success) {
-        // Marquer comme inactif
+        // Mettre à jour le statut
         setUsers(prev => prev.map(user =>
           user.id === userId
-            ? { ...user, active: false }
+            ? { ...user, active: !currentActive }
             : user
         ));
+        alert(`Utilisateur ${!currentActive ? 'réactivé' : 'désactivé'} avec succès !`);
       } else {
         setError(data.message);
+        alert("Erreur: " + data.message);
       }
     } catch (err) {
       setError(err.message);
+      alert("Erreur réseau: " + err.message);
     }
   };
 
@@ -193,16 +198,19 @@ export default function AdminUsers() {
                           onClick={() => setEditingUser(user.id)}
                           className="text-brand-dark hover:text-blue-900"
                         >
-                          Modifier
+                          Modifier rôles
                         </button>
-                        {user.active && (
-                          <button
-                            onClick={() => deactivateUser(user.id)}
-                            className="text-red-600 hover:text-red-900"
-                          >
-                            Désactiver
-                          </button>
-                        )}
+
+                        {/* ✅ BOUTON TOGGLE (Désactiver/Réactiver) */}
+                        <button
+                          onClick={() => toggleUserActive(user.id, user.active)}
+                          className={`${user.active
+                              ? 'text-red-600 hover:text-red-900'
+                              : 'text-green-600 hover:text-green-900'
+                            }`}
+                        >
+                          {user.active ? 'Désactiver' : 'Réactiver'}
+                        </button>
                       </>
                     )}
                   </td>
