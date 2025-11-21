@@ -71,7 +71,8 @@ const register = async (req, res) => {
         prenom: user.prenom,
         email: user.email,
         roles: userRoles,
-        credits: user.credits
+        credits: user.credits,
+        active: user.active
       }
     });
 

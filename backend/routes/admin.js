@@ -10,7 +10,8 @@ router.use(auth, requireRole("administrateur"));
 router.get("/users", adminController.listUsers);
 router.get("/users/:id", adminController.getUser);
 router.put("/users/:id/roles", adminController.updateUserRoles);
-router.post("/users/:id/deactivate", adminController.deactivateUser);
+router.patch("/users/:id/toggle-active", auth, requireRole("administrateur"), adminController.toggleUserActive);
+
 
 router.get("/trajets", adminController.listTrajets);
 router.get("/stats", adminController.siteStats);
