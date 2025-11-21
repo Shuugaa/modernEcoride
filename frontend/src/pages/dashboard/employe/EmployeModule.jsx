@@ -672,12 +672,12 @@ function SupportTab({ tickets }) {
           tickets.map(ticket => (
             <div key={ticket.id} className="border border-gray-200 rounded-lg p-4">
               <div className="flex justify-between items-start mb-2">
-                <h4 className="font-medium text-gray-900">{ticket.subject}</h4>
-                <span className={`px-2 py-1 rounded text-xs ${ticket.status === 'open' ? 'bg-red-100 text-red-800' :
-                  ticket.status === 'in_progress' ? 'bg-yellow-100 text-yellow-800' :
+                <h4 className="font-medium text-gray-900">{ticket.sujet}</h4>
+                <span className={`px-2 py-1 rounded text-xs ${ticket.statut === 'open' ? 'bg-red-100 text-red-800' :
+                  ticket.statut === 'in_progress' ? 'bg-yellow-100 text-yellow-800' :
                     'bg-green-100 text-green-800'
                   }`}>
-                  {ticket.status}
+                  {ticket.statut}
                 </span>
               </div>
               <p className="text-gray-600 text-sm mb-2">{ticket.description}</p>
