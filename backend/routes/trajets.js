@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const { auth } = require("../middleware/auth");
+const { auth, optionalAuth } = require("../middleware/auth");
 const { pool } = require("../config/db");
 const { logSearch } = require("../middleware/mongoAuth");
 
@@ -10,7 +10,7 @@ const { logSearch } = require("../middleware/mongoAuth");
 
 // Rechercher des trajets (public)
 // REMPLACE la route search dans trajets.js :
-router.get("/search", logSearch, async (req, res) => {
+router.get("/search", optionalAuth, logSearch, async (req, res) => {
   const { depart, arrivee, date, prix_max, places_min } = req.query;
   
   try {

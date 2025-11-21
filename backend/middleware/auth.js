@@ -20,4 +20,24 @@ const auth = (req, res, next) => {
   }
 };
 
-module.exports = { auth };
+// ✅ NOUVEAU: Auth optionnelle pour les recherches publiques
+const optionalAuth = (req, res, next) => {
+  try {
+    const token = req.cookies?.token;
+    
+    if (token) {
+      const decoded = jwt.verify(token, process.env.JWT_SECRET);
+      req.user = decoded;
+    } else {
+      req.user = null;
+    }
+    
+    next();
+  } catch (error) {
+    console.log(`⚠️ Token invalide, user anonyme`); // ✅ DEBUG
+    req.user = null;
+    next();
+  }
+};
+  
+module.exports = { auth, optionalAuth };
