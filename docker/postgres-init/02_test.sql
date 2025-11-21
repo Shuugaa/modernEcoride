@@ -111,3 +111,5 @@ UPDATE trajets SET places_disponibles = places_total - (
   WHERE trajet_id = trajets.id 
     AND statut IN ('confirmee', 'en_attente')
 ) WHERE deleted_at IS NULL;
+
+UPDATE trajets SET date_depart = NOW() + INTERVAL '1 day' WHERE statut = 'actif';
