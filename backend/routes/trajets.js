@@ -47,7 +47,7 @@ router.get("/search", optionalAuth, logSearch, async (req, res) => {
       params.push(parseFloat(prix_max));
     }
     
-    if (places_min && places_min > 1) {
+    if (places_min) {
       query += ` AND t.places_disponibles >= $${params.length + 1}`;
       params.push(parseInt(places_min));
     }
