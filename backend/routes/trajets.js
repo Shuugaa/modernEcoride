@@ -22,7 +22,7 @@ router.get("/search", logSearch, async (req, res) => {
         t.places_disponibles as places_restantes
       FROM trajets t
       JOIN utilisateurs u ON t.conducteur_id = u.id
-      WHERE t.statut = 'actif' AND t.date_depart >= NOW()
+      WHERE t.statut = 'actif' AND t.date_depart >= NOW() AND t.deleted_at IS NULL AND t.statut = 'actif'
     `;
     
     const params = [];

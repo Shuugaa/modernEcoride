@@ -36,6 +36,9 @@ import Analytics from "./pages/dashboard/Analytics";
 import ConducteurIndex from "./pages/dashboard/conducteur/index";
 import MesTrajets from "./pages/dashboard/conducteur/MesTrajets";
 import NouveauTrajet from "./pages/dashboard/conducteur/NouveauTrajet";
+import MesVehicules from "./pages/dashboard/conducteur/MesVehicules";
+import AjouterVehicule from "./pages/dashboard/conducteur/AjouterVehicule";
+import ModifierVehicule from "./pages/dashboard/conducteur/ModifierVehicule";
 
 // Pages passager
 import PassagerIndex from "./pages/dashboard/passager/index";
@@ -71,8 +74,8 @@ export default function App() {
           />
 
           {/* Dashboard avec layout */}
-          <Route 
-            path="/dashboard" 
+          <Route
+            path="/dashboard"
             element={
               <PrivateRoute>
                 <DashboardMain />
@@ -83,13 +86,16 @@ export default function App() {
             <Route path="conducteur" element={<ConducteurIndex />} />
             <Route path="conducteur/mes-trajets" element={<MesTrajets />} />
             <Route path="conducteur/nouveau" element={<NouveauTrajet />} />
+            <Route path="/dashboard/conducteur/vehicules" element={<MesVehicules />} />
+            <Route path="/dashboard/conducteur/vehicules/nouveau" element={<AjouterVehicule />} />
+            <Route path="/dashboard/conducteur/vehicules/:id/edit" element={<ModifierVehicule />} />
 
             {/* Routes passager existantes */}
             <Route path="passager" element={<PassagerIndex />} />
             <Route path="passager/en-cours" element={<ReservationEnCours />} />
             <Route path="passager/historique" element={<HistoriqueTrajets />} />
             <Route path="passager/recherche" element={<RechercheShortcut />} />
-            
+
             {/* Route employé */}
             <Route path="employe" element={<EmployeModule />} />
 

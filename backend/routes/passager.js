@@ -314,6 +314,7 @@ router.get("/credits", auth, requirePassager, async (req, res) => {
 // ────────────────────────────────────────────────────────
 
 // Historique des trajets effectués
+// Historique (INCLURE les trajets supprimés mais terminés)
 router.get("/historique", auth, requirePassager, async (req, res) => {
   try {
     const { rows } = await pool.query(
@@ -324,7 +325,7 @@ router.get("/historique", auth, requirePassager, async (req, res) => {
        JOIN utilisateurs u ON t.conducteur_id = u.id
        WHERE r.passager_id = $1 
          AND t.date_depart < NOW()
-         AND r.statut = 'confirmee'
+         AND r.statut IN ('terminee', 'annulee')
        ORDER BY t.date_depart DESC`,
       [req.user.id]
     );

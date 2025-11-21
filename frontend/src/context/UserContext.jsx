@@ -14,56 +14,71 @@ export function UserProvider({ children }) {
     checkAuth();
   }, []);
 
-async function checkAuth(silent = false) {
-  if (!silent) setLoading(true);
+  async function checkAuth(silent = false) {
+    if (!silent) setLoading(true);
 
-  try {
-    const data = await apiFetch("/auth/me");
+    try {
+      const data = await apiFetch("/auth/me");
 
-    if (data.success && data.user) {
-      let roles = data.user.roles || [];
-      if (typeof roles === "string") {
-        roles = [roles];
+      if (data.success && data.user) {
+        let roles = data.user.roles || [];
+        if (typeof roles === "string") {
+          roles = [roles];
+        }
+
+        const userData = {
+          ...data.user,
+          roles,
+        };
+
+        setUser(userData);
+        return userData;
+      } else {
+        setUser(null);
+        return null;
       }
 
-      const userData = {
-        ...data.user,
-        roles,
-      };
-
-      setUser(userData);
-      return userData;
-    } else {
+    } catch (err) {
+      console.error("❌ Erreur checkAuth:", err);
       setUser(null);
       return null;
+    } finally {
+      if (!silent) setLoading(false);
     }
-
-  } catch (err) {
-    console.error("❌ Erreur checkAuth:", err);
-    setUser(null);
-    return null;
-  } finally {
-    if (!silent) setLoading(false);
   }
-}
 
   // ────────────────────────────────
   // 2) Register
   // ────────────────────────────────
-  async function register(userData) {
-    const data = await apiFetch("/auth/register", {
-      method: "POST",
-      body: JSON.stringify(userData),
-    });
+  const register = async (userData) => {
+    try {
+      const response = await fetch("http://localhost:5000/auth/register", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        credentials: "include", // ✅ Important pour les cookies
+        body: JSON.stringify(userData)
+      });
 
-    if (!data.success) {
-      throw new Error(data.message || "Erreur lors de l'inscription");
+      const data = await response.json();
+
+      if (data.success) {
+        // ✅ VÉRIFIER QUE data.user EXISTE
+        if (data.user) {
+          setUser(data.user); // ✅ Mettre à jour le contexte
+          return data.user;
+        } else {
+          throw new Error("Données utilisateur manquantes dans la réponse");
+        }
+      } else {
+        throw new Error(data.message || "Erreur d'inscription");
+      }
+    } catch (error) {
+      console.error("❌ Erreur dans register():", error);
+      throw error;
     }
-
-    // Utilise checkAuth comme pour login
-    const userDataResult = await checkAuth(true);
-    return userDataResult;
-  }
+  };
 
   // ────────────────────────────────
   // 3) Login (existant)

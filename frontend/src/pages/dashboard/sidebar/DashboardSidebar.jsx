@@ -7,7 +7,7 @@ export default function DashboardSidebar() {
   const { user } = useUser();
 
   const userRoles = Array.isArray(user?.roles) ? user.roles : (user?.role ? [user.role] : []);
-  
+
   return (
     <div className="sticky top-6">
       <div className="bg-white p-4 rounded-xl shadow">
@@ -45,6 +45,9 @@ export default function DashboardSidebar() {
               <Link to="/dashboard/conducteur" className="block px-3 py-2 rounded hover:bg-gray-100">Mon espace conducteur</Link>
               <Link to="/dashboard/conducteur/mes-trajets" className="block px-3 py-2 rounded hover:bg-gray-100">Mes trajets</Link>
               <Link to="/dashboard/conducteur/nouveau" className="block px-3 py-2 rounded hover:bg-gray-100">Nouveau trajet</Link>
+              <Link to="/dashboard/conducteur/vehicules" className="block px-3 py-2 rounded hover:bg-gray-100">
+                🚗 Mes véhicules
+              </Link>
             </>
           )}
 

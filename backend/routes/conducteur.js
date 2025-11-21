@@ -37,7 +37,7 @@ router.post("/nouveau-trajet", auth, requireConducteur, async (req, res) => {
   }
 });
 
-// Mes trajets
+// Mes trajets (EXCLURE les supprimés)
 router.get("/mes-trajets", auth, requireConducteur, async (req, res) => {
   try {
     const { rows } = await pool.query(`
@@ -48,7 +48,8 @@ router.get("/mes-trajets", auth, requireConducteur, async (req, res) => {
             COALESCE(SUM(r.places), 0) as places_reservees_total
             FROM trajets t
             LEFT JOIN reservations r ON t.id = r.trajet_id
-            WHERE t.conducteur_id = $1
+            WHERE t.conducteur_id = $1 
+              AND t.deleted_at IS NULL
             GROUP BY t.id, t.created_at
             ORDER BY t.date_depart ASC
       `,
@@ -158,7 +159,6 @@ router.put("/trajets/:id/statut", auth, requireConducteur, async (req, res) => {
 
     // 💰 SI LE TRAJET EST TERMINÉ → PAYER LE CONDUCTEUR
     if (statut === 'termine') {
-      console.log('💰 Trajet terminé - Calcul des paiements...');
 
       // Récupérer toutes les réservations confirmées
       const { rows: reservations } = await pool.query(
@@ -168,16 +168,12 @@ router.put("/trajets/:id/statut", auth, requireConducteur, async (req, res) => {
          WHERE r.trajet_id = $1 AND r.statut = 'confirmee'`,
         [trajetId]
       );
-
-      console.log('💰 Réservations confirmées:', reservations);
-
       if (reservations.length > 0) {
         // Calculer le total à payer au conducteur
         const totalGagne = reservations.reduce((total, res) => {
           return total + parseFloat(res.prix_total);
         }, 0);
 
-        console.log(`💰 Total à payer au conducteur: ${totalGagne}€`);
 
         // Créditer le conducteur
         await pool.query(
@@ -190,9 +186,6 @@ router.put("/trajets/:id/statut", auth, requireConducteur, async (req, res) => {
           "UPDATE reservations SET statut = 'terminee' WHERE trajet_id = $1 AND statut = 'confirmee'",
           [trajetId]
         );
-
-        console.log(`💰 Conducteur crédité de ${totalGagne}€`);
-        console.log(`✅ ${reservations.length} réservations marquées comme terminées`);
       }
     }
 

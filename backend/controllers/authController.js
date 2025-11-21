@@ -27,7 +27,6 @@ const register = async (req, res) => {
       message: `Rôles non autorisés: ${rolesInvalides.join(', ')}` 
     });
   }
-
   try {
     const saltRounds = 12;
     const hashedPassword = await bcrypt.hash(password, saltRounds);
@@ -40,11 +39,16 @@ const register = async (req, res) => {
 
     const user = newUser.rows[0];
 
+    // ✅ PARSER LES RÔLES POUR LE TOKEN ET LA RÉPONSE
+    const userRoles = typeof user.roles === 'string' 
+      ? JSON.parse(user.roles) 
+      : user.roles;
+
     const token = jwt.sign(
       { 
         id: user.id, 
         email: user.email,
-        roles: user.roles
+        roles: userRoles // ✅ Utilise les rôles parsés
       }, 
       process.env.JWT_SECRET, 
       { expiresIn: "7d" }
@@ -57,9 +61,18 @@ const register = async (req, res) => {
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
 
+    // ✅ AJOUTER LES DONNÉES USER DANS LA RÉPONSE
     res.json({ 
       success: true, 
-      message: "Utilisateur créé et connecté automatiquement" 
+      message: "Utilisateur créé et connecté automatiquement",
+      user: {
+        id: user.id,
+        nom: user.nom,
+        prenom: user.prenom,
+        email: user.email,
+        roles: userRoles,
+        credits: user.credits
+      }
     });
 
   } catch (err) {
@@ -108,7 +121,18 @@ async function login(req, res) {
       path: "/"
     });
 
-    res.json({ success: true, message: "Connecté" });
+    res.json({ 
+      success: true, 
+      message: "Connecté",
+      user: {
+        id: user.id,
+        nom: user.nom,
+        prenom: user.prenom,
+        email: user.email,
+        roles: userRoles,
+        credits: user.credits
+      }
+    });
   } catch (err) {
     console.error("Erreur login:", err);
     res.status(500).json({ success: false, message: "Erreur serveur" });

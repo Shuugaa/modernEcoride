@@ -26,6 +26,14 @@ export default function DashboardConducteur() {
           <div className="text-lg font-semibold">Mes trajets</div>
           <p className="text-sm text-gray-500 mt-1">Consultez et gérez vos trajets publiés.</p>
         </Link>
+
+        <Link
+          to="/dashboard/conducteur/vehicules"
+          className="block bg-white p-5 rounded-xl shadow hover:shadow-lg transition"
+        >
+          <div className="text-lg font-semibold">🚗 Mes véhicules</div>
+          <p className="text-sm text-gray-500 mt-1">Gérez votre flotte de véhicules.</p>
+        </Link>
       </div>
     </div>
   );
