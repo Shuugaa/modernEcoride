@@ -29,6 +29,9 @@ import AdminTrajets from "./pages/dashboard/admin/AdminTrajets";
 // Module Employé
 import EmployeModule from "./pages/dashboard/employe/EmployeModule";
 
+
+// Nouvelle page Analytics
+import Analytics from "./pages/dashboard/Analytics";
 // Pages conducteur
 import ConducteurIndex from "./pages/dashboard/conducteur/index";
 import MesTrajets from "./pages/dashboard/conducteur/MesTrajets";
@@ -99,6 +102,9 @@ export default function App() {
             <Route path="admin/users" element={<AdminUsers />} />
             <Route path="admin/stats" element={<AdminStats />} />
             <Route path="admin/create-employee" element={<CreateEmployee />} />
+
+            {/* Nouvelle route Analytics */}
+            <Route path="analytics" element={<Analytics />} />
           </Route>
 
           {/* Erreurs */}

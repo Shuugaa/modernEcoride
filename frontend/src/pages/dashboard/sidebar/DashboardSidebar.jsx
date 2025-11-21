@@ -62,13 +62,19 @@ export default function DashboardSidebar() {
             <>
               <div className="mt-2 text-xs text-gray-500 px-3">Employé</div>
               <Link to="/dashboard/employe" className="block px-3 py-2 rounded hover:bg-gray-100">Espace employé</Link>
+              <Link to="/dashboard/analytics" className="block px-3 py-2 rounded hover:bg-gray-100">
+                📊 Analytics
+              </Link>
             </>
           )}
 
-          {userRoles.includes("admin") && (
+          {userRoles.includes("administrateur") && (
             <>
               <div className="mt-2 text-xs text-gray-500 px-3">Admin</div>
               <Link to="/dashboard/admin" className="block px-3 py-2 rounded hover:bg-gray-100">Administration</Link>
+              <Link to="/dashboard/analytics" className="block px-3 py-2 rounded hover:bg-gray-100">
+                📊 Analytics
+              </Link>
             </>
           )}
         </nav>

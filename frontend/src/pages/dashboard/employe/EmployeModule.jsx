@@ -201,7 +201,6 @@ export default function EmployeModule() {
           {activeTab === 'support' && (
             <SupportTab tickets={tickets} />
           )}
-
         </div>
       )}
 

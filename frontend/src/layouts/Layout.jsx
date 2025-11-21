@@ -48,15 +48,19 @@ export default function Layout() {
                 )}
 
                 {hasRole("employe") && (
-                  <Link to="/dashboard/employe" className="hover:underline">
-                    Espace Employé
-                  </Link>
+                  <>
+                    <Link to="/dashboard/employe" className="hover:underline">
+                      Espace Employé
+                    </Link>
+                  </>
                 )}
 
                 {hasRole("admin") && (
-                  <Link to="/dashboard/admin" className="hover:underline">
-                    Admin
-                  </Link>
+                  <>
+                    <Link to="/dashboard/admin" className="hover:underline">
+                      Admin
+                    </Link>
+                  </>
                 )}
               </>
             )}
