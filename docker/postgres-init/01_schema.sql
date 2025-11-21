@@ -12,7 +12,7 @@ CREATE TABLE IF NOT EXISTS utilisateurs (
   created_at TIMESTAMP DEFAULT now(),
   credits NUMERIC(8,2) DEFAULT 100,
   active BOOLEAN DEFAULT TRUE,
-  updated_at TIMESTAMP DEFAULT now()  -- ✅ AJOUTÉ
+  updated_at TIMESTAMP DEFAULT now()
 );
 
 -- VEHICULES
@@ -24,10 +24,10 @@ CREATE TABLE IF NOT EXISTS vehicules (
   immatriculation TEXT UNIQUE NOT NULL,
   places INTEGER NOT NULL DEFAULT 4,
   created_at TIMESTAMP DEFAULT now(),
-  updated_at TIMESTAMP DEFAULT now()  -- ✅ AJOUTÉ
+  updated_at TIMESTAMP DEFAULT now()
 );
 
--- TRAJETS (version finale avec soft delete)
+-- TRAJETS
 CREATE TABLE IF NOT EXISTS trajets (
   id SERIAL PRIMARY KEY,
   conducteur_id INTEGER NOT NULL,
@@ -45,10 +45,10 @@ CREATE TABLE IF NOT EXISTS trajets (
   notes TEXT,                                
   created_at TIMESTAMP DEFAULT now(),
   updated_at TIMESTAMP DEFAULT now(),
-  deleted_at TIMESTAMP NULL  -- ✅ AJOUTÉ pour soft delete
+  deleted_at TIMESTAMP NULL
 );
 
--- RESERVATIONS (améliorée avec soft delete)
+-- RESERVATIONS
 CREATE TABLE IF NOT EXISTS reservations (
   id SERIAL PRIMARY KEY,
   trajet_id INTEGER REFERENCES trajets(id) ON DELETE CASCADE,
@@ -59,7 +59,7 @@ CREATE TABLE IF NOT EXISTS reservations (
   notes_passager TEXT,                       -- Notes du passager
   created_at TIMESTAMP DEFAULT now(),
   updated_at TIMESTAMP DEFAULT now(),
-  deleted_at TIMESTAMP NULL  -- ✅ AJOUTÉ pour soft delete (optionnel)
+  deleted_at TIMESTAMP NULL
 );
 
 -- SUPPORT TICKETS

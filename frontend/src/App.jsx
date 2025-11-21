@@ -46,6 +46,10 @@ import HistoriqueTrajets from "./pages/dashboard/passager/HistoriqueTrajets";
 import ReservationEnCours from "./pages/dashboard/passager/ReservationEnCours";
 import RechercheShortcut from "./pages/dashboard/passager/RechercheShortcut";
 
+// Profil utilisateur
+import Profil from "./pages/dashboard/profile/Profil";
+
+// Pages erreurs
 import Unauthorized from "./pages/Unauthorized";
 import NotFound from "./pages/NotFound";
 
@@ -111,6 +115,9 @@ export default function App() {
 
             {/* Nouvelle route Analytics */}
             <Route path="analytics" element={<Analytics />} />
+
+            {/* Profil utilisateur */}
+            <Route path="profil" element={<Profil />} />
           </Route>
 
           {/* Erreurs */}
