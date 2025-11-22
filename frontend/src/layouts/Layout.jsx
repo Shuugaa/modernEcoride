@@ -84,7 +84,7 @@ export default function Layout() {
       </main>
 
       <footer className="bg-brand-dark text-white text-center py-4 mt-8">
-        © {new Date().getFullYear()} Carpool Nature — Tous droits réservés.
+        © {new Date().getFullYear()} Ecoride — Tous droits réservés.
       </footer>
     </div>
   );

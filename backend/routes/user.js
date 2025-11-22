@@ -2,11 +2,12 @@ const express = require("express");
 const router = express.Router();
 const { auth } = require("../middleware/auth");
 const { pool } = require("../config/db");
+const jwt = require("jsonwebtoken");
 
 router.post("/toggle-conducteur", auth, async (req, res) => {
   try {
     const userId = req.user.id;
-    
+
     const { rows } = await pool.query("SELECT * FROM utilisateurs WHERE id = $1", [userId]);
     const user = rows[0];
 
@@ -46,11 +47,23 @@ router.post("/toggle-conducteur", auth, async (req, res) => {
       [JSON.stringify(newRoles), userId]
     );
 
+    const token = jwt.sign(
+      { id: user.id, roles: newRoles, email: user.email },
+      process.env.JWT_SECRET,
+      { expiresIn: "7d" }
+    );
+    res.cookie("token", token, {
+      httpOnly: true,
+      sameSite: "lax",
+      secure: process.env.NODE_ENV === "production",
+      maxAge: 7 * 24 * 60 * 60 * 1000
+    });
+
     res.json({
       success: true,
       roles: newRoles,  // Renvoyer l'array au frontend
-      message: newRoles.includes('conducteur') 
-        ? "Vous êtes maintenant conducteur !" 
+      message: newRoles.includes('conducteur')
+        ? "Vous êtes maintenant conducteur !"
         : "Vous n'êtes plus conducteur"
     });
 
@@ -70,10 +83,21 @@ router.get("/profile", auth, async (req, res) => {
       return res.status(404).json({ success: false, message: "Utilisateur non trouvé" });
     }
 
-    const userRoles = JSON.parse(user.roles);
+    let userRoles;
+    if (Array.isArray(user.roles)) {
+      userRoles = user.roles;
+    } else if (typeof user.roles === "string") {
+      try {
+        userRoles = JSON.parse(user.roles);
+      } catch (e) {
+        userRoles = user.roles.split(",").map(r => r.trim());
+      }
+    } else {
+      userRoles = ["passager"];
+    }
 
-    res.json({ 
-      success: true, 
+    res.json({
+      success: true,
       user: {
         id: user.id,
         nom: user.nom,
@@ -94,19 +118,30 @@ router.get("/profile", auth, async (req, res) => {
 
 // Mettre à jour le profil
 router.put("/profile", auth, async (req, res) => {
-  const { nom, prenom } = req.body;
+  const { nom, prenom, email } = req.body;
 
   try {
     const { rows } = await pool.query(
-      "UPDATE utilisateurs SET nom = $1, prenom = $2 WHERE id = $3 RETURNING *",
-      [nom, prenom, req.user.id]
+      "UPDATE utilisateurs SET nom = $1, prenom = $2, email = $3 WHERE id = $4 RETURNING *",
+      [nom, prenom, email, req.user.id]
     );
 
     const user = rows[0];
-    const userRoles = JSON.parse(user.roles);
+    let userRoles;
+    if (Array.isArray(user.roles)) {
+      userRoles = user.roles;
+    } else if (typeof user.roles === "string") {
+      try {
+        userRoles = JSON.parse(user.roles);
+      } catch (e) {
+        userRoles = user.roles.split(",").map(r => r.trim());
+      }
+    } else {
+      userRoles = ["passager"];
+    }
 
-    res.json({ 
-      success: true, 
+    res.json({
+      success: true,
       message: "Profil mis à jour",
       user: {
         id: user.id,

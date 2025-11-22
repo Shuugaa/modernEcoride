@@ -27,15 +27,12 @@ export default function ToggleConducteur() {
       });
 
       if (data.success) {
-        console.log('🔄 Toggle - Réponse API:', data);
 
         setUser(prev => {
           const newUser = {
             ...prev,
             roles: data.roles
           };
-          console.log('🔄 Toggle - Ancien user:', prev);
-          console.log('🔄 Toggle - Nouveau user:', newUser);
           return newUser;
         });
 

@@ -5,15 +5,15 @@ const SearchLog = require("../models_mongo/SearchLog");
 async function createTrajet(req, res) {
   try {
     const conducteurId = req.user.id;
-    const { depart, arrivee, date_depart, places_disponibles, prix, vehicule_id } = req.body;
+    const { depart, arrivee, date_depart, places_disponibles, prix, vehicule_id, description } = req.body;
     if (!depart || !arrivee || !date_depart || !places_disponibles || !prix) {
       return res.status(400).json({ success: false, message: "Champs manquants" });
     }
 
     const { rows } = await pool.query(
-      `INSERT INTO trajets (conducteur_id, vehicule_id, depart, arrivee, date_depart, places_disponibles, prix)
-       VALUES ($1,$2,$3,$4,$5,$6,$7) RETURNING *`,
-      [conducteurId, vehicule_id || null, depart, arrivee, date_depart, places_disponibles, prix]
+      `INSERT INTO trajets (conducteur_id, vehicule_id, depart, arrivee, date_depart, places_disponibles, prix, notes)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8) RETURNING *`,
+      [conducteurId, vehicule_id || null, depart, arrivee, date_depart, places_disponibles, prix, description]
     );
     res.json({ success: true, trajet: rows[0] });
   } catch (err) {

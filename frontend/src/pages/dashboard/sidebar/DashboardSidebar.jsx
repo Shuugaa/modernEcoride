@@ -11,7 +11,7 @@ export default function DashboardSidebar({ onNavigate }) {
   // ✅ Fonction pour gérer les clics (ferme la sidebar mobile)
   const handleNavClick = (path) => {
     navigate(path);
-    if (onNavigate) onNavigate(); // Fermer la sidebar mobile
+    if (onNavigate) onNavigate();
   };
 
   return (
@@ -19,7 +19,7 @@ export default function DashboardSidebar({ onNavigate }) {
       <div className="bg-white p-4 rounded-xl shadow">
         {/* header */}
         <div className="flex items-center gap-3 mb-4">
-          <img src="logo.png" alt="logo" className="w-12 h-12 rounded-full object-cover" />
+          <img src="/images/logo.png" alt="logo" className="w-12 h-12 rounded-full object-cover" />
           <div>
             <div className="font-semibold">{user?.prenom ?? "Utilisateur"}</div>
             <div className="text-xs text-gray-500">{user?.email ?? "—"}</div>
@@ -30,7 +30,7 @@ export default function DashboardSidebar({ onNavigate }) {
         <div className="mb-4 border rounded p-3 bg-gray-50">
           <div className="text-sm text-gray-600">Crédits</div>
           <div className="font-bold">{user?.credits ?? 0} ⚡</div>
-          <button 
+          <button
             onClick={() => handleNavClick("/dashboard/recharge-credits")}
             className="text-xs text-green-600 hover:underline"
           >
@@ -46,7 +46,7 @@ export default function DashboardSidebar({ onNavigate }) {
 
         {/* nav */}
         <nav className="flex flex-col gap-1">
-          <button 
+          <button
             onClick={() => handleNavClick("/dashboard")}
             className="block w-full text-left px-3 py-2 rounded hover:bg-gray-100"
           >
@@ -57,25 +57,25 @@ export default function DashboardSidebar({ onNavigate }) {
           {userRoles.includes("conducteur") && (
             <>
               <div className="mt-2 text-xs text-gray-500 px-3">Conducteur</div>
-              <button 
+              <button
                 onClick={() => handleNavClick("/dashboard/conducteur")}
                 className="block w-full text-left px-3 py-2 rounded hover:bg-gray-100"
               >
                 Mon espace conducteur
               </button>
-              <button 
+              <button
                 onClick={() => handleNavClick("/dashboard/conducteur/mes-trajets")}
                 className="block w-full text-left px-3 py-2 rounded hover:bg-gray-100"
               >
                 Mes trajets
               </button>
-              <button 
+              <button
                 onClick={() => handleNavClick("/dashboard/conducteur/nouveau")}
                 className="block w-full text-left px-3 py-2 rounded hover:bg-gray-100"
               >
                 Nouveau trajet
               </button>
-              <button 
+              <button
                 onClick={() => handleNavClick("/dashboard/conducteur/vehicules")}
                 className="block w-full text-left px-3 py-2 rounded hover:bg-gray-100"
               >
@@ -87,25 +87,25 @@ export default function DashboardSidebar({ onNavigate }) {
           {userRoles.includes("passager") && (
             <>
               <div className="mt-2 text-xs text-gray-500 px-3">Passager</div>
-              <button 
+              <button
                 onClick={() => handleNavClick("/dashboard/passager")}
                 className="block w-full text-left px-3 py-2 rounded hover:bg-gray-100"
               >
                 Mon espace passager
               </button>
-              <button 
+              <button
                 onClick={() => handleNavClick("/dashboard/passager/en-cours")}
                 className="block w-full text-left px-3 py-2 rounded hover:bg-gray-100"
               >
                 Réservation en cours
               </button>
-              <button 
+              <button
                 onClick={() => handleNavClick("/dashboard/passager/historique")}
                 className="block w-full text-left px-3 py-2 rounded hover:bg-gray-100"
               >
                 Historique
               </button>
-              <button 
+              <button
                 onClick={() => handleNavClick("/recherche")}
                 className="block w-full text-left px-3 py-2 rounded hover:bg-gray-100"
               >
@@ -117,13 +117,13 @@ export default function DashboardSidebar({ onNavigate }) {
           {userRoles.includes("employe") && (
             <>
               <div className="mt-2 text-xs text-gray-500 px-3">Employé</div>
-              <button 
+              <button
                 onClick={() => handleNavClick("/dashboard/employe")}
                 className="block w-full text-left px-3 py-2 rounded hover:bg-gray-100"
               >
                 Espace employé
               </button>
-              <button 
+              <button
                 onClick={() => handleNavClick("/dashboard/analytics")}
                 className="block w-full text-left px-3 py-2 rounded hover:bg-gray-100"
               >
@@ -135,13 +135,13 @@ export default function DashboardSidebar({ onNavigate }) {
           {userRoles.includes("administrateur") && (
             <>
               <div className="mt-2 text-xs text-gray-500 px-3">Admin</div>
-              <button 
+              <button
                 onClick={() => handleNavClick("/dashboard/admin")}
                 className="block w-full text-left px-3 py-2 rounded hover:bg-gray-100"
               >
                 Administration
               </button>
-              <button 
+              <button
                 onClick={() => handleNavClick("/dashboard/analytics")}
                 className="block w-full text-left px-3 py-2 rounded hover:bg-gray-100"
               >
@@ -149,6 +149,13 @@ export default function DashboardSidebar({ onNavigate }) {
               </button>
             </>
           )}
+
+          <button
+            onClick={() => handleNavClick("/dashboard/profil")}
+            className="block w-full text-left px-3 py-2 rounded hover:bg-gray-100"
+          >
+            Mon profil
+          </button>
         </nav>
       </div>
 
