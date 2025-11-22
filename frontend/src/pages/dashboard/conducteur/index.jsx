@@ -13,6 +13,7 @@ export default function DashboardConducteur() {
       navigate("/dashboard/passager", { replace: true });
     }
   }, [user?.roles]);
+  
   return (
     <div className="p-6">
       <h1 className="text-3xl font-bold mb-4">Tableau de bord — Conducteur</h1>
