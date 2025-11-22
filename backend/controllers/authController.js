@@ -161,7 +161,7 @@ async function me(req, res) {
         nom: user.nom,
         prenom: user.prenom,
         email: user.email,
-        roles: userRoles,  // ← Utilise les rôles parsés
+        roles: userRoles,
         credits: user.credits
       }
     });

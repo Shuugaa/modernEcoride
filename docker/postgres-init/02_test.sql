@@ -2,17 +2,16 @@
 
 INSERT INTO utilisateurs (nom, prenom, email, password_hash, roles, credits) VALUES
   -- Mot de passe: "test123" pour tous
-  ('Dupont', 'Marie', 'marie.dupont@test.com', '$2b$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewGbzKxbYsHJBv7q', '["passager"]', 150.00),
-  ('Martin', 'Pierre', 'pierre.martin@test.com', '$2b$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewGbzKxbYsHJBv7q', '["conducteur", "passager"]', 200.00),
-  ('Durand', 'Sophie', 'sophie.durand@test.com', '$2b$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewGbzKxbYsHJBv7q', '["conducteur", "passager"]', 180.00),
-  ('Moreau', 'Jean', 'jean.moreau@test.com', '$2b$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewGbzKxbYsHJBv7q', '["passager"]', 120.00),
-  ('Petit', 'Laura', 'laura.petit@test.com', '$2b$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewGbzKxbYsHJBv7q', '["conducteur", "passager"]', 300.00),
-  ('Bernard', 'Thomas', 'thomas.bernard@test.com', '$2b$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewGbzKxbYsHJBv7q', '["passager"]', 90.00),
-  ('Robert', 'Emma', 'emma.robert@test.com', '$2b$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewGbzKxbYsHJBv7q', '["conducteur", "passager"]', 250.00),
-  ('Richard', 'Lucas', 'lucas.richard@test.com', '$2b$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewGbzKxbYsHJBv7q', '["passager"]', 75.00),
-  ('Admin', 'Super', 'admin@test.com', '$2b$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewGbzKxbYsHJBv7q', '["administrateur", "employe", "conducteur", "passager"]', 500.00),
-  ('Employe', 'John', 'employe@test.com', '$2b$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewGbzKxbYsHJBv7q', '["employe", "passager"]', 200.00);
-
+  ('Dupont', 'Marie', 'marie.dupont@test.com', '$2b$12$SpNr62Iv0UW4dzc583tVouJYrY.JTbuDAV2Q8m4GFv2nMMLVnsdiG', '["passager"]', 150.00),
+  ('Martin', 'Pierre', 'pierre.martin@test.com', '$2b$12$SpNr62Iv0UW4dzc583tVouJYrY.JTbuDAV2Q8m4GFv2nMMLVnsdiG', '["conducteur", "passager"]', 200.00),
+  ('Durand', 'Sophie', 'sophie.durand@test.com', '$2b$12$SpNr62Iv0UW4dzc583tVouJYrY.JTbuDAV2Q8m4GFv2nMMLVnsdiG', '["conducteur", "passager"]', 180.00),
+  ('Moreau', 'Jean', 'jean.moreau@test.com', '$2b$12$SpNr62Iv0UW4dzc583tVouJYrY.JTbuDAV2Q8m4GFv2nMMLVnsdiG', '["passager"]', 120.00),
+  ('Petit', 'Laura', 'laura.petit@test.com', '$2b$12$SpNr62Iv0UW4dzc583tVouJYrY.JTbuDAV2Q8m4GFv2nMMLVnsdiG', '["conducteur", "passager"]', 300.00),
+  ('Bernard', 'Thomas', 'thomas.bernard@test.com', '$2b$12$SpNr62Iv0UW4dzc583tVouJYrY.JTbuDAV2Q8m4GFv2nMMLVnsdiG', '["passager"]', 90.00),
+  ('Robert', 'Emma', 'emma.robert@test.com', '$2b$12$SpNr62Iv0UW4dzc583tVouJYrY.JTbuDAV2Q8m4GFv2nMMLVnsdiG', '["conducteur", "passager"]', 250.00),
+  ('Richard', 'Lucas', 'lucas.richard@test.com', '$2b$12$SpNr62Iv0UW4dzc583tVouJYrY.JTbuDAV2Q8m4GFv2nMMLVnsdiG', '["passager"]', 75.00),
+  ('Admin', 'Super', 'admin@test.com', '$2b$12$SpNr62Iv0UW4dzc583tVouJYrY.JTbuDAV2Q8m4GFv2nMMLVnsdiG', '["administrateur", "employe", "conducteur", "passager"]', 500.00),
+  ('Employe', 'John', 'employe@test.com', '$2b$12$SpNr62Iv0UW4dzc583tVouJYrY.JTbuDAV2Q8m4GFv2nMMLVnsdiG', '["employe", "passager"]', 200.00);
 -- ===== VÉHICULES DE TEST =====
 
 INSERT INTO vehicules (conducteur_id, marque, modele, immatriculation, places) VALUES

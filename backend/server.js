@@ -4,6 +4,9 @@ const cookieParser = require("cookie-parser");
 const cors = require("cors");
 require("dotenv").config();
 
+// const bcrypt = require('bcrypt');
+// bcrypt.hash('test123', 12).then(console.log);
+
 const connectMongo = require("./config/mongo");
 const { pool } = require("./config/db");  // ← CONNECTION SQL IMPORTÉE
 

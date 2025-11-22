@@ -39,7 +39,6 @@ export function UserProvider({ children }) {
       }
 
     } catch (err) {
-      console.error("❌ Erreur checkAuth:", err);
       setUser(null);
       return null;
     } finally {
