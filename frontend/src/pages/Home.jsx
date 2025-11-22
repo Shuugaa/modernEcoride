@@ -38,7 +38,7 @@ export default function Home() {
       {/* AVANTAGES */}
       <section>
         <h2 className="text-3xl font-bold text-brand-verydark mb-6">
-          Pourquoi choisir Carpool Nature ?
+          Pourquoi choisir Ecoride ?
         </h2>
 
         <div className="grid md:grid-cols-3 gap-6">
