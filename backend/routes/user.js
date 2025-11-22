@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const { auth } = require("../middleware/auth");
 const { pool } = require("../config/db");
+const jwt = require("jsonwebtoken");
 
 router.post("/toggle-conducteur", auth, async (req, res) => {
   try {
@@ -45,6 +46,18 @@ router.post("/toggle-conducteur", auth, async (req, res) => {
       "UPDATE utilisateurs SET roles = $1 WHERE id = $2",
       [JSON.stringify(newRoles), userId]
     );
+
+    const token = jwt.sign(
+      { id: user.id, roles: newRoles, email: user.email },
+      process.env.JWT_SECRET,
+      { expiresIn: "7d" }
+    );
+    res.cookie("token", token, {
+      httpOnly: true,
+      sameSite: "lax",
+      secure: process.env.NODE_ENV === "production",
+      maxAge: 7 * 24 * 60 * 60 * 1000
+    });
 
     res.json({
       success: true,
@@ -126,7 +139,7 @@ router.put("/profile", auth, async (req, res) => {
     } else {
       userRoles = ["passager"];
     }
-    
+
     res.json({
       success: true,
       message: "Profil mis à jour",

@@ -1,9 +1,11 @@
 import { Outlet } from "react-router-dom";
 import { useState } from "react";
+import { useUser } from "../../context/UserContext";
 import DashboardSidebar from "./sidebar/DashboardSidebar";
 
 export default function DashboardMain() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const { user } = useUser();
 
   return (
     <div className="min-h-[70vh] bg-gray-50">
@@ -65,7 +67,7 @@ export default function DashboardMain() {
           <main className="flex-1 lg:ml-0">
             <div className="py-4 sm:py-6 lg:py-8 px-4 sm:px-6 lg:px-8">
               <div className="bg-white rounded-lg sm:rounded-xl shadow p-4 sm:p-6">
-                <Outlet />
+                <Outlet context={{ user }}/>
               </div>
             </div>
           </main>

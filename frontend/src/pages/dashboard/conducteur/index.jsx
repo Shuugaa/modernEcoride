@@ -1,10 +1,18 @@
 // frontend/src/pages/dashboard/conducteur/index.jsx
+import { useEffect } from "react";
 import { Link } from "react-router-dom";
-import { useUser } from "../../../context/UserContext";
+import { useOutletContext, useNavigate } from "react-router-dom";
 
 export default function DashboardConducteur() {
-  const { user } = useUser();
+  const { user } = useOutletContext();
+  const navigate = useNavigate();
 
+  useEffect(() => {
+    // Si l'utilisateur n'est plus conducteur, redirige vers la page passager
+    if (user && !user.roles.includes("conducteur")) {
+      navigate("/dashboard/passager", { replace: true });
+    }
+  }, [user?.roles]);
   return (
     <div className="p-6">
       <h1 className="text-3xl font-bold mb-4">Tableau de bord — Conducteur</h1>

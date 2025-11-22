@@ -79,7 +79,7 @@ export default function UserMenu() {
           {/* PASSAGER - corrigé */}
           {userRoles.includes("passager") && (
             <Link
-              to="/dashboard/passager/historique"
+              to="/dashboard/passager/en-cours"
               className="block px-4 py-2 text-gray-700 hover:bg-gray-100"
             >
               🎒 Mes réservations
