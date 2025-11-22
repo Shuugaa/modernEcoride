@@ -77,6 +77,6 @@ Thumbs.db
 
 
 # =====================================================
-# IDEs and Editors
+# Tests
 # =====================================================
-./docker/postgres-init/02_test.sql
+# ./docker/postgres-init/02_test.sql

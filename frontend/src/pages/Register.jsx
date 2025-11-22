@@ -4,7 +4,7 @@ import { useUser } from "../context/UserContext";
 
 export default function Register() {
   const nav = useNavigate();
-  const { register: registerUser } = useUser(); // ✅ Une seule ligne pour le context
+  const { register: registerUser } = useUser();
 
   const [nom, setNom] = useState("");
   const [prenom, setPrenom] = useState("");
@@ -12,9 +12,9 @@ export default function Register() {
   const [role, setRole] = useState("passager");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false); // ✅ Ajouter loading
+  const [loading, setLoading] = useState(false);
 
-  const handleSubmit = async (e) => { // ✅ Renommer pour éviter confusion
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
     setLoading(true);
@@ -33,6 +33,11 @@ export default function Register() {
         throw new Error("Adresse email invalide");
       }
 
+      if (role == "administrateur" || role == "employe") {
+        throw new Error("Rôle invalide sélectionné");
+      }
+
+      // Préparer les rôles à envoyer
       let rolesToSend = role === "both" ? ["passager", "conducteur"] : [role];
 
       const userData = await registerUser({ 
@@ -148,7 +153,6 @@ export default function Register() {
             disabled={loading}
           >
             <option value="passager">🚗 Passager</option>
-            <option value="conducteur">🚙 Conducteur</option>
             <option value="both">🚗🚙 Passager et Conducteur</option>
           </select>
         </div>
