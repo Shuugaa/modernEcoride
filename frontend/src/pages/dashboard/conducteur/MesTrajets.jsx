@@ -118,6 +118,11 @@ export default function MesTrajets() {
     });
   };
 
+  const formatDate2 = (dateString) => {
+    const [date, time] = dateString.split("T");
+    return `${date.split("-").reverse().join("/")} à ${time.slice(0,5)}`;
+  };
+
   const getStatutColor = (statut) => {
     switch (statut) {
       case 'actif': return 'bg-green-100 text-green-800';
@@ -242,7 +247,7 @@ export default function MesTrajets() {
                       {trajet.depart} → {trajet.arrivee}
                     </h3>
                     <p className="text-gray-600">
-                      📅 {formatDate(trajet.date_depart)} •
+                      📅 {formatDate2(trajet.date_depart)} •
                       💰 {trajet.prix}€/place •
                       👥 {trajet.places_disponibles}/{trajet.places_total} places
                     </p>

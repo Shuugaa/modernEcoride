@@ -19,7 +19,7 @@ export default function NouveauTrajet() {
 
   useEffect(() => {
     // Charger la liste des véhicules du conducteur
-    apiFetch("/conducteur/vehicules")
+    apiFetch("/api/vehicules")
       .then(res => setVehicules(res.vehicules || []))
       .catch(() => setVehicules([]));
   }, []);
@@ -33,6 +33,8 @@ export default function NouveauTrajet() {
     e.preventDefault();
     setError(null);
     setLoading(true);
+    
+
     try {
       const body = {
         depart: form.depart,
@@ -43,6 +45,7 @@ export default function NouveauTrajet() {
         vehicule_id: form.vehicule_id || null,
         description: form.description || "",
       };
+
       await apiFetch("/conducteur/nouveau-trajet", {
         method: "POST",
         body: JSON.stringify(body),
@@ -65,7 +68,7 @@ export default function NouveauTrajet() {
         <input type="datetime-local" name="date_depart" value={form.date_depart} onChange={onChange} className="w-full border p-2 rounded" />
         <input type="number" name="prix" value={form.prix} onChange={onChange} placeholder="Prix (crédits)" className="w-full border p-2 rounded" />
         <input type="number" name="places_disponibles" value={form.places_disponibles} onChange={onChange} placeholder="Places disponibles" className="w-full border p-2 rounded" />
-        <select name="vehicule_id" value={form.vehicule_id} onChange={onChange} className="w-full border p-2 rounded">
+        <select name="vehicule_id" value={form.vehicule_id} onChange={onChange} className="w-full border p-2 rounded" required>
           <option value="">Sélectionnez un véhicule</option>
           {vehicules.map(v => (
             <option key={v.id} value={v.id}>
